@@ -43,6 +43,11 @@ public class StubbedFileDialogs implements XFileDialogs {
     }
 
     @Override
+    public File open(Object action, String title, String[] extensions, String fileType, String current) {
+        return null;
+    }
+    
+    @Override
     public File openXML(Object action, String title) {
         return null;
     }

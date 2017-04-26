@@ -13,31 +13,41 @@
  * express or implied. See the Licence for the specific language governing permissions and limitations 
  * under the Licence. 
  */
-
 package com.eviware.soapui.support;
 
 import javax.swing.filechooser.FileFilter;
 import java.io.File;
+import java.util.Arrays;
 import java.util.Locale;
 
 /**
  * FileFilter for a specified extensions
  */
-
 final public class ExtensionFileFilter extends FileFilter {
-    private final String extension;
+
+    private final String[] extensions;
     private final String description;
 
     public ExtensionFileFilter(String extension, String description) {
-        this.extension = extension.toLowerCase();
+        this(new String[]{extension.toLowerCase()}, description);
+    }
+
+    public ExtensionFileFilter(String[] extensions, String description) {
+        this.extensions = extensions;
         this.description = description;
     }
 
+    @Override
     public boolean accept(File f) {
-        return f.isDirectory() || "*".equals(extension)
-                || f.getName().toLowerCase(Locale.getDefault()).endsWith(extension);
+        for (String extension : extensions) {
+            if (f.getName().toLowerCase(Locale.getDefault()).endsWith(extension)) {
+                return true;
+            }
+        }
+        return f.isDirectory() || Arrays.asList(extensions).contains("*");
     }
 
+    @Override
     public String getDescription() {
         return description;
     }

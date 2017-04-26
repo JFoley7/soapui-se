@@ -13,7 +13,6 @@
  * express or implied. See the Licence for the specific language governing permissions and limitations 
  * under the Licence. 
  */
-
 package com.eviware.soapui.support.components;
 
 import com.eviware.soapui.impl.wsdl.AbstractWsdlModelItem;
@@ -28,8 +27,10 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import java.awt.event.ActionEvent;
 import java.io.File;
+import java.util.Map;
 
 public class FileFormComponent extends JPanel implements JFormComponent {
+
     private JTextField textField;
     private AbstractWsdlModelItem<?> modelItem;
 
@@ -63,10 +64,16 @@ public class FileFormComponent extends JPanel implements JFormComponent {
     }
 
     public class SelectFileAction extends AbstractAction {
+
         public SelectFileAction() {
             super("Browse...");
         }
+        
+        public SelectFileAction(Map<String, String[]> files) {
+            
+        }
 
+        @Override
         public void actionPerformed(ActionEvent e) {
             String value = FileFormComponent.this.getValue();
             File file = UISupport.getFileDialogs().open(this, "Select file", null, null,

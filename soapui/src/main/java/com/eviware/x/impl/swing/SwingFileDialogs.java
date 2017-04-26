@@ -13,7 +13,6 @@
  * express or implied. See the Licence for the specific language governing permissions and limitations 
  * under the Licence. 
  */
-
 package com.eviware.x.impl.swing;
 
 import com.eviware.soapui.support.ExtensionFileFilter;
@@ -30,8 +29,9 @@ import java.util.Map;
  * @author Lars
  */
 public class SwingFileDialogs implements XFileDialogs {
+
     private static Component parent;
-    private static Map<Object, JFileChooser> choosers = new HashMap<Object, JFileChooser>();
+    private static Map<Object, JFileChooser> choosers = new HashMap();
 
     public SwingFileDialogs(Component parent) {
         SwingFileDialogs.parent = parent;
@@ -54,10 +54,12 @@ public class SwingFileDialogs implements XFileDialogs {
         return parent;
     }
 
+    @Override
     public File saveAs(Object action, String title) {
         return saveAs(action, title, null, null, null);
     }
 
+    @Override
     public File saveAs(Object action, String title, String extension, String fileType, File defaultFile) {
         JFileChooser chooser = getChooser(action);
         chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
@@ -83,11 +85,18 @@ public class SwingFileDialogs implements XFileDialogs {
         return chooser.getSelectedFile();
     }
 
-    public File open(Object action, String title, String extension, String fileType, String current) {
-        return openFile(action, title, extension, fileType, current);
+//    @Override
+//    public File open(Object action, String title, String extension, String fileType, String current) {
+//        return openFile(action, title, extension, fileType, current);
+//    }
+    
+    @Override
+    public File open(Object action, String title, String[] extensions, String fileType, String current) {
+//        return openFile(action, title, extension, fileType, current);
+        return null;
     }
 
-    public static File openFile(Object action, String title, String extension, String fileType, String current) {
+    public static File openFile(Object action, String title, String[] extensions, String fileType, String current) {
         JFileChooser chooser = getChooser(action);
         chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
         chooser.setDialogTitle(title);
@@ -103,8 +112,8 @@ public class SwingFileDialogs implements XFileDialogs {
             chooser.setSelectedFile(null);
         }
 
-        if (extension != null && fileType != null) {
-            chooser.setFileFilter(new ExtensionFileFilter(extension, fileType));
+        if (extensions != null && fileType != null) {
+            chooser.setFileFilter(new ExtensionFileFilter(extensions, fileType));
         } else {
             chooser.setFileFilter(null);
         }
@@ -116,10 +125,12 @@ public class SwingFileDialogs implements XFileDialogs {
         return chooser.getSelectedFile();
     }
 
+    @Override
     public File openXML(Object action, String title) {
         return open(action, title, ".xml", "XML Files (*.xml)", null);
     }
 
+    @Override
     public File openDirectory(Object action, String title, File defaultDirectory) {
         JFileChooser chooser = new JFileChooser(defaultDirectory);
         chooser.setDialogTitle(title);
@@ -145,6 +156,7 @@ public class SwingFileDialogs implements XFileDialogs {
         // return chooser.getSelectedFile();
     }
 
+    @Override
     public File openFileOrDirectory(Object action, String title, File defaultDirectory) {
         JFileChooser chooser = getChooser(action);
         chooser.setDialogTitle(title);
@@ -161,6 +173,7 @@ public class SwingFileDialogs implements XFileDialogs {
         return chooser.getSelectedFile();
     }
 
+    @Override
     public File saveAsDirectory(Object action, String title, File defaultDirectory) {
         JFileChooser chooser = new JFileChooser(defaultDirectory);
         chooser.setDialogTitle(title);
