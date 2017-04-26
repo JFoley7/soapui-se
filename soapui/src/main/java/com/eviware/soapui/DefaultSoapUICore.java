@@ -13,7 +13,6 @@
  * express or implied. See the Licence for the specific language governing permissions and limitations 
  * under the Licence. 
  */
-
 package com.eviware.soapui;
 
 import com.eviware.soapui.config.SoapuiSettingsDocumentConfig;
@@ -41,6 +40,7 @@ import com.eviware.soapui.support.action.SoapUIActionRegistry;
 import com.eviware.soapui.support.factory.SoapUIFactoryRegistry;
 import com.eviware.soapui.support.listener.SoapUIListenerRegistry;
 import com.eviware.soapui.support.types.StringList;
+import groovy.lang.GroovyShell;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.ssl.OpenSSL;
 import org.apache.log4j.Logger;
@@ -58,17 +58,20 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.security.GeneralSecurityException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.TimerTask;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
+import org.apache.commons.io.FileUtils;
 
 /**
  * Initializes core objects. Transform to a Spring "ApplicationContext"?
  *
  * @author ole.matzura
  */
-
 public class DefaultSoapUICore implements SoapUICore {
+
     public static Logger log;
 
     private boolean logIsInitialized;
@@ -147,6 +150,27 @@ public class DefaultSoapUICore implements SoapUICore {
         // this is to provoke initialization
         SoapVersion.Soap11.equals(SoapVersion.Soap12);
 
+        initScriptLibraries();
+    }
+    
+    /**
+     * Runs executable groovy scripts
+     */
+    private void initScriptLibraries() {
+        File scripts = new File(".\\scripts");
+        if (scripts.exists()) {
+            List<File> files = new ArrayList(FileUtils.listFiles(scripts, new String[]{"groovy"}, true));
+            List<File> toRemove = new ArrayList();
+            for (File file : files) {
+                try {
+                    new GroovyShell().parse(file).run();
+                } catch (Exception e) {
+                    toRemove.add(file);
+                }
+            }
+            files.removeAll(toRemove);
+            log.info("Initialized " + files.size() + " groovy scripts");
+        }
     }
 
     protected void loadPlugins() {
@@ -173,16 +197,16 @@ public class DefaultSoapUICore implements SoapUICore {
         /* We break the general rule that you shouldn't catch Throwable, because we don't want extensions to crash SoapUI. */
         try {
             String extDir = System.getProperty("soapui.ext.listeners");
-            addExternalListeners(FilenameUtils.normalize(extDir != null ? extDir : root == null ? "listeners" :
-                    root + File.separatorChar + "listeners"), extensionClassLoader);
+            addExternalListeners(FilenameUtils.normalize(extDir != null ? extDir : root == null ? "listeners"
+                    : root + File.separatorChar + "listeners"), extensionClassLoader);
         } catch (Throwable e) {
             SoapUI.logError(e, "Couldn't load external listeners");
         }
 
         try {
             String factoriesDir = System.getProperty("soapui.ext.factories");
-            addExternalFactories(FilenameUtils.normalize(factoriesDir != null ? factoriesDir : root == null ? "factories" :
-                    root + File.separatorChar + "factories"), extensionClassLoader);
+            addExternalFactories(FilenameUtils.normalize(factoriesDir != null ? factoriesDir : root == null ? "factories"
+                    : root + File.separatorChar + "factories"), extensionClassLoader);
         } catch (Throwable e) {
             SoapUI.logError(e, "Couldn't load external factories");
         }
@@ -634,12 +658,13 @@ public class DefaultSoapUICore implements SoapUICore {
 
     public static boolean settingsFileExists() {
         DefaultSoapUICore soapUICore = new DefaultSoapUICore();
-        return new File(DEFAULT_SETTINGS_FILE).exists() ||
-                new File(new File(soapUICore.getRoot()), DEFAULT_SETTINGS_FILE).exists() ||
-                new File(System.getProperty("user.home", ".") + File.separator + DEFAULT_SETTINGS_FILE).exists();
+        return new File(DEFAULT_SETTINGS_FILE).exists()
+                || new File(new File(soapUICore.getRoot()), DEFAULT_SETTINGS_FILE).exists()
+                || new File(System.getProperty("user.home", ".") + File.separator + DEFAULT_SETTINGS_FILE).exists();
     }
 
     private class SettingsWatcher extends TimerTask {
+
         @Override
         public void run() {
             if (settingsFile != null && !isSavingSettings) {
