@@ -60,14 +60,14 @@ public class SwingFileDialogs implements XFileDialogs {
     }
 
     @Override
-    public File saveAs(Object action, String title, String extension, String fileType, File defaultFile) {
+    public File saveAs(Object action, String title, String[] extensions, String fileType, File defaultFile) {
         JFileChooser chooser = getChooser(action);
         chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
         chooser.setDialogTitle(title);
         chooser.setAcceptAllFileFilterUsed(true);
 
-        if (extension != null && fileType != null) {
-            chooser.setFileFilter(new ExtensionFileFilter(extension, fileType));
+        if (extensions != null && fileType != null) {
+            chooser.setFileFilter(new ExtensionFileFilter(extensions, fileType));
         } else {
             chooser.setFileFilter(null);
         }
@@ -92,8 +92,7 @@ public class SwingFileDialogs implements XFileDialogs {
     
     @Override
     public File open(Object action, String title, String[] extensions, String fileType, String current) {
-//        return openFile(action, title, extension, fileType, current);
-        return null;
+        return openFile(action, title, extensions, fileType, current);
     }
 
     public static File openFile(Object action, String title, String[] extensions, String fileType, String current) {
@@ -127,7 +126,7 @@ public class SwingFileDialogs implements XFileDialogs {
 
     @Override
     public File openXML(Object action, String title) {
-        return open(action, title, ".xml", "XML Files (*.xml)", null);
+        return open(action, title, new String[] {".xml"}, "XML Files (*.xml)", null);
     }
 
     @Override

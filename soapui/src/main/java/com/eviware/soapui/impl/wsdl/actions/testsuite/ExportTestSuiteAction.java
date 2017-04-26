@@ -13,7 +13,6 @@
  * express or implied. See the Licence for the specific language governing permissions and limitations 
  * under the Licence. 
  */
-
 package com.eviware.soapui.impl.wsdl.actions.testsuite;
 
 import com.eviware.soapui.impl.wsdl.WsdlTestSuite;
@@ -29,11 +28,12 @@ public class ExportTestSuiteAction extends AbstractSoapUIAction<WsdlTestSuite> {
         super("Export", "Export this test suite");
     }
 
+    @Override
     public void perform(WsdlTestSuite tSuite, Object param) {
         tSuite.beforeSave();
         String defaultFileName = System.getProperty("user.home") + File.separator
                 + StringUtils.createFileName(tSuite.getName(), '-') + ".xml";
-        File file = UISupport.getFileDialogs().saveAs(this, "Select test case file", "xml", "XML",
+        File file = UISupport.getFileDialogs().saveAs(this, "Select test case file", new String[]{ "xml" }, "XML",
                 new File(defaultFileName));
 
         if (file == null) {

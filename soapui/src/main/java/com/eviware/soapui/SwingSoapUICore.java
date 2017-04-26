@@ -13,7 +13,6 @@
  * express or implied. See the Licence for the specific language governing permissions and limitations 
  * under the Licence. 
  */
-
 package com.eviware.soapui;
 
 import com.eviware.soapui.config.SoapuiSettingsDocumentConfig;
@@ -43,6 +42,7 @@ import java.io.File;
 import java.io.FileInputStream;
 
 public class SwingSoapUICore extends DefaultSoapUICore {
+
     public SwingSoapUICore() {
         super();
     }
@@ -109,7 +109,7 @@ public class SwingSoapUICore extends DefaultSoapUICore {
         if (UISupport.getDialogs().confirm("Missing SoapUI Settings, import from existing installation?",
                 "Import Preferences")) {
             while (true) {
-                File settingsFile = UISupport.getFileDialogs().open(null, "Import Preferences", ".xml",
+                File settingsFile = UISupport.getFileDialogs().open(null, "Import Preferences", new String[]{ ".xml" },
                         "SoapUI settings XML", fileName);
                 if (settingsFile != null) {
                     try {

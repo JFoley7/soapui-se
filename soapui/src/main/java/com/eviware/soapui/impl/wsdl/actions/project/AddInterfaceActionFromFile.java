@@ -13,7 +13,6 @@
  * express or implied. See the Licence for the specific language governing permissions and limitations 
  * under the Licence. 
  */
-
 package com.eviware.soapui.impl.wsdl.actions.project;
 
 import com.eviware.soapui.impl.WsdlInterfaceFactory;
@@ -30,16 +29,17 @@ import java.io.File;
  *
  * @author Ole.Matzura
  */
-
 public class AddInterfaceActionFromFile extends AbstractSoapUIAction<WsdlProject> {
+
     public static final String SOAPUI_ACTION_ID = "AddInterfaceActionFromFile";
 
     public AddInterfaceActionFromFile() {
         super("Add WSDL from File", "Adds all interfaces in a specified local WSDL file to the current project");
     }
 
+    @Override
     public void perform(WsdlProject project, Object param) {
-        File file = UISupport.getFileDialogs().open(this, "Select WSDL file", ".wsdl", "WSDL Files (*.wsdl)",
+        File file = UISupport.getFileDialogs().open(this, "Select WSDL file", new String[]{ ".wsdl" }, "WSDL Files (*.wsdl)",
                 ProjectDirProvider.getProjectFolder(project));
         if (file == null) {
             return;

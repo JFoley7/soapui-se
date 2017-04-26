@@ -13,7 +13,6 @@
  * express or implied. See the Licence for the specific language governing permissions and limitations 
  * under the Licence. 
  */
-
 package com.eviware.soapui.impl.wsdl.actions.mockoperation;
 
 import com.eviware.soapui.impl.wsdl.mock.WsdlMockOperation;
@@ -23,14 +22,16 @@ import com.eviware.soapui.support.action.support.AbstractSoapUIAction;
 import java.io.File;
 
 public class ExportMockOperation extends AbstractSoapUIAction<WsdlMockOperation> {
+
     public ExportMockOperation() {
         super("Export", "Exports the mock operation");
     }
 
+    @Override
     public void perform(WsdlMockOperation mOperation, Object param) {
         mOperation.beforeSave();
         String defaultFileName = System.getProperty("user.home", ".") + File.separator + mOperation.getName() + ".xml";
-        File file = UISupport.getFileDialogs().saveAs(this, "Select test case file", "xml", "XML",
+        File file = UISupport.getFileDialogs().saveAs(this, "Select test case file", new String[]{ "xml" }, "XML",
                 new File(defaultFileName));
 
         if (file == null) {

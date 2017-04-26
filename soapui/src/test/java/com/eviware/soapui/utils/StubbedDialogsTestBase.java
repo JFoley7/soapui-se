@@ -13,7 +13,6 @@
  * express or implied. See the Licence for the specific language governing permissions and limitations 
  * under the Licence. 
  */
-
 package com.eviware.soapui.utils;
 
 import com.eviware.soapui.support.UISupport;
@@ -33,13 +32,15 @@ import static org.mockito.Matchers.isA;
 import static org.mockito.Mockito.when;
 
 /**
- * This class provides a base for mocking out dialogs in SoapUI when doing unit testing.
- * The dialogs will be replaced by <i>StubbedDialogs</i> and the file dialogs with a mock that
- * returns a new <i>File</i> object when the <i>saveAs()</i> method is called
+ * This class provides a base for mocking out dialogs in SoapUI when doing unit
+ * testing. The dialogs will be replaced by <i>StubbedDialogs</i> and the file
+ * dialogs with a mock that returns a new <i>File</i> object when the
+ * <i>saveAs()</i> method is called
  *
  * @see StubbedDialogs
  */
 public abstract class StubbedDialogsTestBase {
+
     private static final String SAVED_PROJECT_FILE_NAME = "saved-project-file";
     private static final String SAVED_PROJECT_FILE_EXTENSION = ".xml";
 
@@ -64,10 +65,9 @@ public abstract class StubbedDialogsTestBase {
         restoreOriginalDialogs();
     }
 
-
     private void addSaveAsBehaviour(XFileDialogs mockedFileDialogs) throws IOException {
         File savedFile = File.createTempFile(SAVED_PROJECT_FILE_NAME, SAVED_PROJECT_FILE_EXTENSION);
-        when(mockedFileDialogs.saveAs(anyObject(), anyString(), anyString(), anyString(), isA(File.class))).thenReturn(savedFile);
+        when(mockedFileDialogs.saveAs(anyObject(), anyString(), new String[] { anyString() }, anyString(), isA(File.class))).thenReturn(savedFile);
     }
 
     private void setMockedDialogsTemporary() {

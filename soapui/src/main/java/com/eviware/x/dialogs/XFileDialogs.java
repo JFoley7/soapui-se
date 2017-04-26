@@ -22,13 +22,13 @@ import java.io.File;
  */
 public interface XFileDialogs {
 
-    File saveAs(Object action, String title, String extension, String fileType, File defaultFile);
+    File saveAs(Object action, String title, String[] extensions, String fileType, File defaultFile);
 
     File saveAs(Object action, String title);
 
     File saveAsDirectory(Object action, String title, File defaultDirectory);
 
-    File open(Object action, String title, String extension, String fileType, String current);
+//    File open(Object action, String title, String extension, String fileType, String current);
     
     File open(Object action, String title, String[] extensions, String fileType, String current);
 

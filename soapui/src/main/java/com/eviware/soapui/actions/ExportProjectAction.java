@@ -13,7 +13,6 @@
  * express or implied. See the Licence for the specific language governing permissions and limitations 
  * under the Licence. 
  */
-
 package com.eviware.soapui.actions;
 
 import com.eviware.soapui.SoapUI;
@@ -39,7 +38,7 @@ public class ExportProjectAction extends AbstractSoapUIAction<WsdlProject> {
             if (path == null) {
                 project.save();
             } else {
-                File file = UISupport.getFileDialogs().saveAs(this, "Select file to export project", "zip", "zip",
+                File file = UISupport.getFileDialogs().saveAs(this, "Select file to export project", new String[]{ "zip" }, "zip",
                         new File(System.getProperty("user.home")));
                 if (file == null) {
                     return;

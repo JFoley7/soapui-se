@@ -13,7 +13,6 @@
  * express or implied. See the Licence for the specific language governing permissions and limitations 
  * under the Licence. 
  */
-
 package com.eviware.soapui.actions;
 
 import com.eviware.soapui.impl.WorkspaceImpl;
@@ -26,6 +25,7 @@ import java.io.File;
 import java.util.List;
 
 public class ImportPackedProject extends AbstractSoapUIAction<WorkspaceImpl> {
+
     public ImportPackedProject() {
         super("Import Packed Project", "Import Packed Project");
     }
@@ -35,7 +35,7 @@ public class ImportPackedProject extends AbstractSoapUIAction<WorkspaceImpl> {
 
         try {
 
-            File target = UISupport.getFileDialogs().open(this, "Select file to unpack project", "zip", "zip",
+            File target = UISupport.getFileDialogs().open(this, "Select file to unpack project", new String[]{ "zip" }, "zip",
                     System.getProperty("user.home"));
             if (target == null) {
                 return;

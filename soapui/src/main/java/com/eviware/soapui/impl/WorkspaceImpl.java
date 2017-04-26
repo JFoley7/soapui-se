@@ -13,7 +13,6 @@
  * express or implied. See the Licence for the specific language governing permissions and limitations 
  * under the Licence. 
  */
-
 package com.eviware.soapui.impl;
 
 import com.eviware.soapui.SoapUI;
@@ -63,8 +62,8 @@ import static com.eviware.soapui.impl.wsdl.WsdlProject.ProjectEncryptionStatus.N
  *
  * @author Ole.Matzura
  */
-
 public class WorkspaceImpl extends AbstractModelItem implements Workspace {
+
     private final static Logger log = Logger.getLogger(WorkspaceImpl.class);
     public static final MessageSupport messages = MessageSupport.getMessages(WorkspaceImpl.class);
 
@@ -175,7 +174,7 @@ public class WorkspaceImpl extends AbstractModelItem implements Workspace {
     }
 
     public Map<String, Project> getProjects() {
-        Map<String, Project> result = new HashMap<String, Project>();
+        Map<String, Project> result = new HashMap();
 
         for (Project project : projectList) {
             result.put(project.getName(), project);
@@ -198,15 +197,18 @@ public class WorkspaceImpl extends AbstractModelItem implements Workspace {
         notifyPropertyChanged(ModelItem.DESCRIPTION_PROPERTY, oldDescription, description);
     }
 
+    @Override
     public String getName() {
         return workspaceConfig.getSoapuiWorkspace().isSetName() ? workspaceConfig.getSoapuiWorkspace().getName()
                 : messages.get("DefaultWorkspaceName");
     }
 
+    @Override
     public Project getProjectAt(int index) {
         return projectList.get(index);
     }
 
+    @Override
     public Project getProjectByName(String projectName) {
         for (Project project : projectList) {
             if (project.getName().equals(projectName)) {
@@ -217,14 +219,17 @@ public class WorkspaceImpl extends AbstractModelItem implements Workspace {
         return null;
     }
 
+    @Override
     public int getProjectCount() {
         return projectList.size();
     }
 
+    @Override
     public SaveStatus onClose() {
         return save(!getSettings().getBoolean(UISettings.AUTO_SAVE_PROJECTS_ON_EXIT));
     }
 
+    @Override
     public SaveStatus save(boolean workspaceOnly) {
         return save(workspaceOnly, false);
     }
@@ -233,7 +238,7 @@ public class WorkspaceImpl extends AbstractModelItem implements Workspace {
         try {
             // not saved?
             if (path == null) {
-                File file = UISupport.getFileDialogs().saveAs(this, messages.get("SaveWorkspace.Title"), ".xml",
+                File file = UISupport.getFileDialogs().saveAs(this, messages.get("SaveWorkspace.Title"), new String[]{ ".xml" },
                         "XML Files (*.xml)", null);
                 if (file == null) {
                     return SaveStatus.CANCELLED;
@@ -242,7 +247,7 @@ public class WorkspaceImpl extends AbstractModelItem implements Workspace {
                 path = file.getAbsolutePath();
             }
 
-            List<WorkspaceProjectConfig> projects = new ArrayList<WorkspaceProjectConfig>();
+            List<WorkspaceProjectConfig> projects = new ArrayList();
 
             // save projects first
             for (int c = 0; c < getProjectCount(); c++) {
@@ -304,35 +309,36 @@ public class WorkspaceImpl extends AbstractModelItem implements Workspace {
     private SaveStatus saveProject(boolean skipProjectsWithRunningTests, WsdlProject project) throws IOException {
         if (skipProjectsWithRunningTests && SoapUI.getTestMonitor().hasRunningTests(project)) {
             log.warn(messages.get("ProjectHasRunningTests.Warning", project.getName()));
-        } else {
-            if (!StringUtils.hasContent(project.getPath())) {
-                Boolean shouldSave = UISupport.confirmOrCancel(messages.get("ProjectHasNotBeenSaved.Label", project.getName()),
-                        messages.get("ProjectHasNotBeenSaved.Title"));
+        } else if (!StringUtils.hasContent(project.getPath())) {
+            Boolean shouldSave = UISupport.confirmOrCancel(messages.get("ProjectHasNotBeenSaved.Label", project.getName()),
+                    messages.get("ProjectHasNotBeenSaved.Title"));
 
-                if (shouldSave == null) {
-                    return SaveStatus.CANCELLED;
-                }
-
-                if (shouldSave) {
-                    return project.save();
-                } else {
-                    return SaveStatus.DONT_SAVE;
-                }
-            } else {
-                return project.save();
+            if (shouldSave == null) {
+                return SaveStatus.CANCELLED;
             }
+
+            if (shouldSave) {
+                return project.save();
+            } else {
+                return SaveStatus.DONT_SAVE;
+            }
+        } else {
+            return project.save();
         }
         return SaveStatus.SUCCESS;
     }
 
+    @Override
     public void addWorkspaceListener(WorkspaceListener listener) {
         listeners.add(listener);
     }
 
+    @Override
     public void removeWorkspaceListener(WorkspaceListener listener) {
         listeners.remove(listener);
     }
 
+    @Override
     public Project importProject(String fileName) throws SoapUIException {
         File projectFile = new File(fileName);
         WsdlProject project = (WsdlProject) ProjectFactoryRegistry.getProjectFactory("wsdl").createNew(
@@ -363,7 +369,7 @@ public class WorkspaceImpl extends AbstractModelItem implements Workspace {
 
     public WsdlProject createProject(String name) throws SoapUIException {
         File projectFile = new File(createProjectFileName(name));
-        File file = UISupport.getFileDialogs().saveAs(this, messages.get("CreateProject.Title"), ".xml",
+        File file = UISupport.getFileDialogs().saveAs(this, messages.get("CreateProject.Title"), new String[]{ ".xml" },
                 "XML Files (*.xml)", projectFile);
         if (file == null) {
             return null;
@@ -372,6 +378,7 @@ public class WorkspaceImpl extends AbstractModelItem implements Workspace {
         return createProject(name, file);
     }
 
+    @Override
     public WsdlProject createProject(String name, File file) throws SoapUIException {
         File projectFile = file;
         while (projectFile != null && projectFile.exists()) {
@@ -385,7 +392,7 @@ public class WorkspaceImpl extends AbstractModelItem implements Workspace {
                 if (result) {
                     projectFile.delete();
                 } else {
-                    projectFile = UISupport.getFileDialogs().saveAs(this, messages.get("CreateProject.Title"), ".xml",
+                    projectFile = UISupport.getFileDialogs().saveAs(this, messages.get("CreateProject.Title"), new String[]{ ".xml" },
                             "XML Files (*.xml)", projectFile); //$NON-NLS-1$
                     if (projectFile != null) {
                         break;
@@ -458,6 +465,7 @@ public class WorkspaceImpl extends AbstractModelItem implements Workspace {
         return name + "-soapui-project.xml"; //$NON-NLS-1$
     }
 
+    @Override
     public void removeProject(Project project) {
         int ix = projectList.indexOf(project);
         if (ix == -1) {
@@ -501,18 +509,22 @@ public class WorkspaceImpl extends AbstractModelItem implements Workspace {
         }
     }
 
+    @Override
     public ImageIcon getIcon() {
         return workspaceIcon;
     }
 
+    @Override
     public Settings getSettings() {
         return settings;
     }
 
+    @Override
     public int getIndexOfProject(Project project) {
         return projectList.indexOf(project);
     }
 
+    @Override
     public String getPath() {
         return path;
     }
@@ -533,10 +545,12 @@ public class WorkspaceImpl extends AbstractModelItem implements Workspace {
         }
     }
 
+    @Override
     public List<? extends Project> getProjectList() {
         return projectList;
     }
 
+    @Override
     public String getDescription() {
         return workspaceConfig.getSoapuiWorkspace().getDescription();
     }
@@ -575,7 +589,7 @@ public class WorkspaceImpl extends AbstractModelItem implements Workspace {
     }
 
     public List<Project> getOpenProjectList() {
-        List<Project> availableProjects = new ArrayList<Project>();
+        List<Project> availableProjects = new ArrayList();
 
         for (Project project : projectList) {
             if (project.isOpen()) {
@@ -586,22 +600,27 @@ public class WorkspaceImpl extends AbstractModelItem implements Workspace {
         return availableProjects;
     }
 
+    @Override
     public Project openProject(Project project) throws SoapUIException {
         return reloadProject(project);
     }
 
+    @Override
     public String getId() {
         return String.valueOf(hashCode());
     }
 
+    @Override
     public List<? extends ModelItem> getChildren() {
         return getProjectList();
     }
 
+    @Override
     public ModelItem getParent() {
         return null;
     }
 
+    @Override
     public void inspectProjects() {
         for (Project project : projectList) {
             if (project.isOpen()) {
@@ -618,10 +637,11 @@ public class WorkspaceImpl extends AbstractModelItem implements Workspace {
         projectOptions.remove(name);
     }
 
+    @Override
     public boolean isSupportInformationDialog() {
         boolean isCollect = false;
-        if(workspaceConfig != null) {
-            if(!workspaceConfig.getSoapuiWorkspace().isSetCollectInfoForSupport()) {
+        if (workspaceConfig != null) {
+            if (!workspaceConfig.getSoapuiWorkspace().isSetCollectInfoForSupport()) {
                 return true;
             }
             isCollect = workspaceConfig.getSoapuiWorkspace().getCollectInfoForSupport();
@@ -629,8 +649,10 @@ public class WorkspaceImpl extends AbstractModelItem implements Workspace {
         return isCollect;
     }
 
+    @Override
     public void setSupportInformationDialog(boolean value) {
-        if(workspaceConfig != null)
+        if (workspaceConfig != null) {
             workspaceConfig.getSoapuiWorkspace().setCollectInfoForSupport(value);
+        }
     }
 }

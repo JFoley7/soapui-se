@@ -13,7 +13,6 @@
  * express or implied. See the Licence for the specific language governing permissions and limitations 
  * under the Licence. 
  */
-
 package com.eviware.soapui.impl.wsdl;
 
 import com.eviware.soapui.SoapUI;
@@ -129,9 +128,9 @@ import static com.eviware.soapui.impl.wsdl.WsdlProject.ProjectEncryptionStatus.N
  *
  * @author Ole.Matzura
  */
+public class WsdlProject extends AbstractTestPropertyHolderWsdlModelItem<ProjectConfig> 
+        implements Project, PropertyExpansionContainer, PropertyChangeListener, TestRunnable {
 
-public class WsdlProject extends AbstractTestPropertyHolderWsdlModelItem<ProjectConfig> implements Project,
-        PropertyExpansionContainer, PropertyChangeListener, TestRunnable {
     public final static String AFTER_LOAD_SCRIPT_PROPERTY = WsdlProject.class.getName() + "@setupScript";
     public final static String BEFORE_SAVE_SCRIPT_PROPERTY = WsdlProject.class.getName() + "@tearDownScript";
     public final static String RESOURCE_ROOT_PROPERTY = WsdlProject.class.getName() + "@resourceRoot";
@@ -195,7 +194,7 @@ public class WsdlProject extends AbstractTestPropertyHolderWsdlModelItem<Project
     }
 
     public WsdlProject(String path, WorkspaceImpl workspace, boolean open, String tempName,
-                       String projectPassword) {
+            String projectPassword) {
         super(null, workspace, ICON_NAME);
 
         this.workspace = workspace;
@@ -237,7 +236,6 @@ public class WsdlProject extends AbstractTestPropertyHolderWsdlModelItem<Project
         } finally {
             initProjectIcons();
 
-
             if (projectDocument == null) {
                 createEmptyProjectConfiguration(path, tempName);
             }
@@ -253,7 +251,7 @@ public class WsdlProject extends AbstractTestPropertyHolderWsdlModelItem<Project
     /*
         This is used for loading a project without setting its path,
         which will require the user to select where to save the file upon saving.
-    */
+     */
     public WsdlProject(InputStream inputStream, WorkspaceImpl workspace) {
         super(null, workspace, ICON_NAME);
 
@@ -415,7 +413,6 @@ public class WsdlProject extends AbstractTestPropertyHolderWsdlModelItem<Project
         }
         oAuth1ProfileContainer = new OAuth1ProfileContainer(this, getConfig().getOAuth1ProfileContainer());
 
-
         endpointStrategy.init(this);
 
         setActiveEnvironment(DefaultEnvironment.getInstance());
@@ -553,6 +550,7 @@ public class WsdlProject extends AbstractTestPropertyHolderWsdlModelItem<Project
         }
     }
 
+    @Override
     public String getResourceRoot() {
         if (!getConfig().isSetResourceRoot()) {
             getConfig().setResourceRoot("");
@@ -653,14 +651,17 @@ public class WsdlProject extends AbstractTestPropertyHolderWsdlModelItem<Project
         return name;
     }
 
+    @Override
     public WorkspaceImpl getWorkspace() {
         return workspace;
     }
 
+    @Override
     public AbstractInterface<?> getInterfaceAt(int index) {
         return interfaces.get(index);
     }
 
+    @Override
     public AbstractInterface<?> getInterfaceByName(String interfaceName) {
         return (AbstractInterface<?>) getWsdlModelItemByName(interfaces, interfaceName);
     }
@@ -675,14 +676,17 @@ public class WsdlProject extends AbstractTestPropertyHolderWsdlModelItem<Project
         return null;
     }
 
+    @Override
     public int getInterfaceCount() {
         return interfaces.size();
     }
 
+    @Override
     public String getPath() {
         return path;
     }
 
+    @Override
     public SaveStatus save() throws IOException {
         return save(null);
     }
@@ -703,9 +707,9 @@ public class WsdlProject extends AbstractTestPropertyHolderWsdlModelItem<Project
 
             while (projectFile == null
                     || (projectFile.exists() && !UISupport.confirm("File [" + projectFile.getName() + "] exists, overwrite?",
-                    "Overwrite File?"))) {
+                            "Overwrite File?"))) {
 
-                projectFile = UISupport.getFileDialogs().saveAs(this, "Save project " + getName(), XML_EXTENSION, XML_FILE_TYPE,
+                projectFile = UISupport.getFileDialogs().saveAs(this, "Save project " + getName(), new String[]{ XML_EXTENSION }, XML_FILE_TYPE,
                         new File(tempPath));
 
                 if (projectFile == null) {
@@ -725,7 +729,7 @@ public class WsdlProject extends AbstractTestPropertyHolderWsdlModelItem<Project
             } else if (!confirm) {
                 return SaveStatus.DONT_SAVE;
             } else {
-                projectFile = UISupport.getFileDialogs().saveAs(this, "Save project " + getName(), XML_EXTENSION,
+                projectFile = UISupport.getFileDialogs().saveAs(this, "Save project " + getName(), new String[]{ XML_EXTENSION },
                         XML_FILE_TYPE, projectFile);
 
                 if (projectFile == null) {
@@ -734,7 +738,6 @@ public class WsdlProject extends AbstractTestPropertyHolderWsdlModelItem<Project
 
             }
         }
-
 
         if (projectFileModified(projectFile)) {
             if (!UISupport.confirm("Project file for [" + getName() + "] has been modified externally, overwrite?",
@@ -746,7 +749,6 @@ public class WsdlProject extends AbstractTestPropertyHolderWsdlModelItem<Project
         if (shouldCreateBackup(projectFile)) {
             createBackup(projectFile);
         }
-
 
         SaveStatus saveStatus = saveIn(projectFile);
 
@@ -819,19 +821,19 @@ public class WsdlProject extends AbstractTestPropertyHolderWsdlModelItem<Project
 
         try {
             File tempFile = File.createTempFile("project-temp-", XML_EXTENSION, projectFile.getParentFile());
-
+            
             // save once to make sure it can be saved
-            FileOutputStream tempOut = new FileOutputStream(tempFile);
-            projectDocument.save(tempOut, options);
-            tempOut.close();
+            try ( FileOutputStream tempOut = new FileOutputStream(tempFile)) {
+                projectDocument.save(tempOut, options);
+            }
 
             if (getSettings().getBoolean(UISettings.LINEBREAK)) {
                 normalizeLineBreak(projectFile, tempFile);
             } else {
                 // now save it for real
-                FileOutputStream projectOut = new FileOutputStream(projectFile);
-                projectDocument.save(projectOut, options);
-                projectOut.close();
+                try (FileOutputStream projectOut = new FileOutputStream(projectFile)) {
+                    projectDocument.save(projectOut, options);
+                }
             }
 
             // delete tempFile here so we have it as backup in case second save fails
@@ -893,6 +895,7 @@ public class WsdlProject extends AbstractTestPropertyHolderWsdlModelItem<Project
         return projectDocument.getSoapuiProject();
     }
 
+    @Override
     public void beforeSave() {
         try {
             ProjectListener[] listeners = projectListeners.toArray(new ProjectListener[projectListeners.size()]);
@@ -968,10 +971,12 @@ public class WsdlProject extends AbstractTestPropertyHolderWsdlModelItem<Project
         return iface;
     }
 
+    @Override
     public void addProjectListener(ProjectListener listener) {
         projectListeners.add(listener);
     }
 
+    @Override
     public void removeProjectListener(ProjectListener listener) {
         projectListeners.remove(listener);
     }
@@ -1103,18 +1108,22 @@ public class WsdlProject extends AbstractTestPropertyHolderWsdlModelItem<Project
         }
     }
 
+    @Override
     public boolean isDisabled() {
         return disabled;
     }
 
+    @Override
     public int getTestSuiteCount() {
         return testSuites.size();
     }
 
+    @Override
     public WsdlTestSuite getTestSuiteAt(int index) {
         return testSuites.get(index);
     }
 
+    @Override
     public WsdlTestSuite getTestSuiteByName(String testSuiteName) {
         return (WsdlTestSuite) getWsdlModelItemByName(testSuites, testSuiteName);
     }
@@ -1124,6 +1133,7 @@ public class WsdlProject extends AbstractTestPropertyHolderWsdlModelItem<Project
         return null;
     }
 
+    @Override
     public WsdlTestSuite addNewTestSuite(String name) {
         WsdlTestSuite testSuite = buildTestSuite(getConfig().addNewTestSuite());
         testSuite.setName(name);
@@ -1208,6 +1218,7 @@ public class WsdlProject extends AbstractTestPropertyHolderWsdlModelItem<Project
         }
     }
 
+    @Override
     public WsdlMockService addNewMockService(String name) {
         WsdlMockService mockService = new WsdlMockService(this, getConfig().addNewMockService());
 
@@ -1224,6 +1235,7 @@ public class WsdlProject extends AbstractTestPropertyHolderWsdlModelItem<Project
         mockServices.add(mockService);
     }
 
+    @Override
     public RestMockService addNewRestMockService(String name) {
         RestMockService mockService = new RestMockService(this, getConfig().addNewRestMockService());
         mockService.setName(name);
@@ -1244,30 +1256,37 @@ public class WsdlProject extends AbstractTestPropertyHolderWsdlModelItem<Project
         restMockServices.add(mockService);
     }
 
+    @Override
     public WsdlMockService getMockServiceAt(int index) {
         return mockServices.get(index);
     }
 
+    @Override
     public WsdlMockService getMockServiceByName(String mockServiceName) {
         return (WsdlMockService) getWsdlModelItemByName(mockServices, mockServiceName);
     }
 
+    @Override
     public int getMockServiceCount() {
         return mockServices.size();
     }
 
+    @Override
     public RestMockService getRestMockServiceAt(int index) {
         return restMockServices.get(index);
     }
 
+    @Override
     public RestMockService getRestMockServiceByName(String mockServiceName) {
         return (RestMockService) getWsdlModelItemByName(restMockServices, mockServiceName);
     }
 
+    @Override
     public int getRestMockServiceCount() {
         return restMockServices.size();
     }
 
+    @Override
     public void removeMockService(MockService mockService) {
         int ix = mockServices.indexOf(mockService);
         boolean isRestMockService = ix == -1;
@@ -1301,24 +1320,28 @@ public class WsdlProject extends AbstractTestPropertyHolderWsdlModelItem<Project
         }
     }
 
+    @Override
     public List<TestSuite> getTestSuiteList() {
         return new ArrayList<TestSuite>(testSuites);
     }
 
+    @Override
     public List<WsdlMockService> getMockServiceList() {
-        return new ArrayList<WsdlMockService>(mockServices);
+        return new ArrayList(mockServices);
     }
 
+    @Override
     public List<RestMockService> getRestMockServiceList() {
         return restMockServices;
     }
 
+    @Override
     public List<Interface> getInterfaceList() {
         return new ArrayList<Interface>(interfaces);
     }
 
     public Map<String, Interface> getInterfaces() {
-        Map<String, Interface> result = new HashMap<String, Interface>();
+        Map<String, Interface> result = new HashMap();
         for (Interface iface : interfaces) {
             result.put(iface.getName(), iface);
         }
@@ -1327,7 +1350,7 @@ public class WsdlProject extends AbstractTestPropertyHolderWsdlModelItem<Project
     }
 
     public Map<String, TestSuite> getTestSuites() {
-        Map<String, TestSuite> result = new HashMap<String, TestSuite>();
+        Map<String, TestSuite> result = new HashMap();
         for (TestSuite iface : testSuites) {
             result.put(iface.getName(), iface);
         }
@@ -1336,7 +1359,7 @@ public class WsdlProject extends AbstractTestPropertyHolderWsdlModelItem<Project
     }
 
     public Map<String, MockService> getMockServices() {
-        Map<String, MockService> result = new HashMap<String, MockService>();
+        Map<String, MockService> result = new HashMap();
         for (MockService mockService : mockServices) {
             result.put(mockService.getName(), mockService);
         }
@@ -1353,6 +1376,7 @@ public class WsdlProject extends AbstractTestPropertyHolderWsdlModelItem<Project
         getWorkspace().reloadProject(this);
     }
 
+    @Override
     public boolean hasNature(String natureId) {
         Settings projectSettings = getSettings();
         String projectNature = projectSettings.getString(ProjectSettings.PROJECT_NATURE, null);
@@ -1383,7 +1407,7 @@ public class WsdlProject extends AbstractTestPropertyHolderWsdlModelItem<Project
     }
 
     public WsdlTestSuite importTestSuite(WsdlTestSuite testSuite, String name, int index, boolean createCopy,
-                                         String description) {
+            String description) {
         testSuite.beforeSave();
         TestSuiteConfig testSuiteConfig = index == -1 ? (TestSuiteConfig) getConfig().addNewTestSuite().set(
                 testSuite.getConfig().copy()) : (TestSuiteConfig) getConfig().insertNewTestSuite(index).set(
@@ -1428,7 +1452,7 @@ public class WsdlProject extends AbstractTestPropertyHolderWsdlModelItem<Project
     }
 
     public WsdlMockService importMockService(WsdlMockService mockService, String name, boolean createCopy,
-                                             String description) {
+            String description) {
         mockService.beforeSave();
         MockServiceConfig mockServiceConfig = (MockServiceConfig) getConfig().addNewMockService().set(
                 mockService.getConfig().copy());
@@ -1450,16 +1474,19 @@ public class WsdlProject extends AbstractTestPropertyHolderWsdlModelItem<Project
         return mockService;
     }
 
+    @Override
     public EndpointStrategy getEndpointStrategy() {
         return endpointStrategy;
     }
 
+    @Override
     public boolean isOpen() {
         return open;
     }
 
+    @Override
     public List<? extends ModelItem> getChildren() {
-        ArrayList<ModelItem> list = new ArrayList<ModelItem>();
+        ArrayList<ModelItem> list = new ArrayList();
         list.addAll(getInterfaceList());
         list.addAll(getTestSuiteList());
         list.addAll(getMockServiceList());
@@ -1547,10 +1574,12 @@ public class WsdlProject extends AbstractTestPropertyHolderWsdlModelItem<Project
         return wssContainer;
     }
 
+    @Override
     public OAuth2ProfileContainer getOAuth2ProfileContainer() {
         return oAuth2ProfileContainer;
     }
 
+    @Override
     public OAuth1ProfileContainer getOAuth1ProfileContainer() {
         return oAuth1ProfileContainer;
     }
@@ -1562,8 +1591,9 @@ public class WsdlProject extends AbstractTestPropertyHolderWsdlModelItem<Project
         wssContainer.resolve(context);
     }
 
+    @Override
     public PropertyExpansion[] getPropertyExpansions() {
-        List<PropertyExpansion> result = new ArrayList<PropertyExpansion>();
+        List<PropertyExpansion> result = new ArrayList();
 
         result.addAll(Arrays.asList(wssContainer.getPropertyExpansions()));
         result.addAll(Arrays.asList(oAuth2ProfileContainer.getPropertyExpansions()));
@@ -1578,12 +1608,14 @@ public class WsdlProject extends AbstractTestPropertyHolderWsdlModelItem<Project
         wssContainer.addExternalDependency(dependencies);
     }
 
+    @Override
     public String getShadowPassword() {
         projectPassword = getSettings() == null ? projectPassword : getSettings().getString(
                 ProjectSettings.SHADOW_PASSWORD, null);
         return projectPassword;
     }
 
+    @Override
     public void setShadowPassword(String password) {
         String oldPassword = getSettings().getString(ProjectSettings.SHADOW_PASSWORD, null);
         getSettings().setString(ProjectSettings.SHADOW_PASSWORD, password);
@@ -1614,6 +1646,7 @@ public class WsdlProject extends AbstractTestPropertyHolderWsdlModelItem<Project
 
     }
 
+    @Override
     public void inspect() {
 
         if (!isOpen()) {
@@ -1638,6 +1671,7 @@ public class WsdlProject extends AbstractTestPropertyHolderWsdlModelItem<Project
         return this.encryptionStatus = status;
     }
 
+    @Override
     public void propertyChange(PropertyChangeEvent evt) {
         if ("projectPassword".equals(evt.getPropertyName())) {
             if (encryptionStatus == NOT_ENCRYPTED && (evt.getOldValue() == null || ((String) evt.getOldValue()).length() == 0)) {
@@ -1670,7 +1704,7 @@ public class WsdlProject extends AbstractTestPropertyHolderWsdlModelItem<Project
     }
 
     public List<AbstractInterface<?>> getInterfaces(String type) {
-        ArrayList<AbstractInterface<?>> result = new ArrayList<AbstractInterface<?>>();
+        ArrayList<AbstractInterface<?>> result = new ArrayList();
 
         for (AbstractInterface<?> iface : interfaces) {
             if (iface.getType().equals(type)) {
@@ -1706,7 +1740,7 @@ public class WsdlProject extends AbstractTestPropertyHolderWsdlModelItem<Project
             ModelSupport.createNewIds(testSuite);
             testSuite.afterLoad();
 
-			/*
+            /*
              * security test keeps reference to test step by id, which gets changed
 			 * during importing, so old values needs to be rewritten to new ones.
 			 *
@@ -1714,11 +1748,11 @@ public class WsdlProject extends AbstractTestPropertyHolderWsdlModelItem<Project
 			 * all old ids in new imported test case.
 			 *
 			 * Here needs to be done for all test cases separatly.
-			 */
+             */
             for (int cnt2 = 0; cnt2 < config.getTestCaseList().size(); cnt2++) {
                 TestCaseConfig newTestCase = config.getTestCaseList().get(cnt2);
                 TestCaseConfig importTestCaseConfig = newTestSuiteConfig.getTestSuite().getTestCaseList().get(cnt2);
-                LinkedHashMap<String, String> oldNewIds = new LinkedHashMap<String, String>();
+                LinkedHashMap<String, String> oldNewIds = new LinkedHashMap();
                 for (int cnt = 0; cnt < importTestCaseConfig.getTestStepList().size(); cnt++) {
                     oldNewIds.put(importTestCaseConfig.getTestStepList().get(cnt).getId(), newTestCase.getTestStepList()
                             .get(cnt).getId());
@@ -1759,14 +1793,16 @@ public class WsdlProject extends AbstractTestPropertyHolderWsdlModelItem<Project
     }
 
     /**
-     * @deprecated replaced by {@link WsdlInterfaceFactory#importWsdl(WsdlProject, String, boolean)}
+     * @deprecated replaced by
+     * {@link WsdlInterfaceFactory#importWsdl(WsdlProject, String, boolean)}
      */
     public WsdlInterface[] importWsdl(String url, boolean createRequests) throws SoapUIException {
         return WsdlInterfaceFactory.importWsdl(this, url, createRequests);
     }
 
     /**
-     * @deprecated replaced by {@link WsdlInterfaceFactory#importWsdl(WsdlProject, String, boolean, WsdlLoader)}
+     * @deprecated replaced by
+     * {@link WsdlInterfaceFactory#importWsdl(WsdlProject, String, boolean, WsdlLoader)}
      */
     public WsdlInterface[] importWsdl(String url, boolean createRequests, WsdlLoader wsdlLoader)
             throws SoapUIException {
@@ -1774,9 +1810,9 @@ public class WsdlProject extends AbstractTestPropertyHolderWsdlModelItem<Project
     }
 
     /**
-     * @deprecated replaced by {@link WsdlInterfaceFactory#importWsdl(WsdlProject, String, boolean, QName, WsdlLoader)}
+     * @deprecated replaced by
+     * {@link WsdlInterfaceFactory#importWsdl(WsdlProject, String, boolean, QName, WsdlLoader)}
      */
-
     public WsdlInterface[] importWsdl(String url, boolean createRequests, QName bindingName, WsdlLoader wsdlLoader)
             throws SoapUIException {
         return WsdlInterfaceFactory.importWsdl(this, url, createRequests, bindingName, wsdlLoader);
@@ -1794,6 +1830,7 @@ public class WsdlProject extends AbstractTestPropertyHolderWsdlModelItem<Project
         getConfig().setDefaultScriptLanguage(id);
     }
 
+    @Override
     public int getIndexOfTestSuite(TestSuite testSuite) {
         return testSuites.indexOf(testSuite);
     }
@@ -1880,6 +1917,7 @@ public class WsdlProject extends AbstractTestPropertyHolderWsdlModelItem<Project
         runListeners.remove(projectRunListener);
     }
 
+    @Override
     public WsdlProjectRunner run(StringToObjectMap context, boolean async) {
         WsdlProjectRunner runner = new WsdlProjectRunner(this, context);
         runner.start(async);
@@ -1951,16 +1989,14 @@ public class WsdlProject extends AbstractTestPropertyHolderWsdlModelItem<Project
                 } else {
                     configs[c] = (TestSuiteConfig) getConfig().getTestSuiteArray(c).copy();
                 }
+            } else if (c < ix + offset) {
+                configs[c] = (TestSuiteConfig) getConfig().getTestSuiteArray(c).copy();
+            } else if (c == ix + offset) {
+                configs[c] = (TestSuiteConfig) getConfig().getTestSuiteArray(ix).copy();
+            } else if (c <= ix) {
+                configs[c] = (TestSuiteConfig) getConfig().getTestSuiteArray(c - 1).copy();
             } else {
-                if (c < ix + offset) {
-                    configs[c] = (TestSuiteConfig) getConfig().getTestSuiteArray(c).copy();
-                } else if (c == ix + offset) {
-                    configs[c] = (TestSuiteConfig) getConfig().getTestSuiteArray(ix).copy();
-                } else if (c <= ix) {
-                    configs[c] = (TestSuiteConfig) getConfig().getTestSuiteArray(c - 1).copy();
-                } else {
-                    configs[c] = (TestSuiteConfig) getConfig().getTestSuiteArray(c).copy();
-                }
+                configs[c] = (TestSuiteConfig) getConfig().getTestSuiteArray(c).copy();
             }
         }
 

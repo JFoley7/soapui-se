@@ -13,7 +13,6 @@
  * express or implied. See the Licence for the specific language governing permissions and limitations 
  * under the Licence. 
  */
-
 package com.eviware.soapui.impl.actions;
 
 import com.eviware.soapui.SoapUI;
@@ -30,8 +29,8 @@ import java.io.File;
  *
  * @author ole.matzura
  */
-
 public class NewWorkspaceAction extends AbstractSoapUIAction<WorkspaceImpl> {
+
     public static final String SOAPUI_ACTION_ID = "NewWorkspaceAction";
     public static final MessageSupport messages = MessageSupport.getMessages(NewWorkspaceAction.class);
 
@@ -39,6 +38,7 @@ public class NewWorkspaceAction extends AbstractSoapUIAction<WorkspaceImpl> {
         super(messages.get("Title"), messages.get("Description"));
     }
 
+    @Override
     public void perform(WorkspaceImpl workspace, Object param) {
         if (SoapUI.getTestMonitor().hasRunningTests()) {
             UISupport.showErrorMessage(messages.get("FailBecauseOfRunningTests"));
@@ -50,7 +50,7 @@ public class NewWorkspaceAction extends AbstractSoapUIAction<WorkspaceImpl> {
             return;
         }
 
-        File newPath = UISupport.getFileDialogs().saveAs(this, messages.get("SaveAs.Title"), ".xml",
+        File newPath = UISupport.getFileDialogs().saveAs(this, messages.get("SaveAs.Title"), new String[]{ ".xml" },
                 "SoapUI Workspace (*.xml)", new File(name + "-workspace.xml"));
         if (newPath == null) {
             return;
@@ -78,7 +78,7 @@ public class NewWorkspaceAction extends AbstractSoapUIAction<WorkspaceImpl> {
                 }
             }
 
-            workspace.save(val.booleanValue());
+            workspace.save(val);
 
             try {
                 workspace.switchWorkspace(newPath);

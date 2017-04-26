@@ -13,7 +13,6 @@
  * express or implied. See the Licence for the specific language governing permissions and limitations 
  * under the Licence. 
  */
-
 package com.eviware.soapui.support.editor.inspectors.attachments;
 
 import com.eviware.soapui.SoapUI;
@@ -66,8 +65,8 @@ import java.util.List;
  *
  * @author emibre
  */
-
 public class AttachmentsPanel extends javax.swing.JPanel {
+
     private DropTarget dropTarget;
     private FileTransferHandler fileTransferHandler;
     private AttachmentsTableModel tableModel;
@@ -78,6 +77,7 @@ public class AttachmentsPanel extends javax.swing.JPanel {
 
     /**
      * Creates new form FileTableList
+     * @param container
      */
     public AttachmentsPanel(AttachmentContainer container) {
         this.container = container;
@@ -102,16 +102,20 @@ public class AttachmentsPanel extends javax.swing.JPanel {
             dropTarget.setActive(true);
             try {
                 dropTarget.addDropTargetListener(new DropTargetListener() {
+                    @Override
                     public void dragEnter(DropTargetDragEvent dtde) {
                     }
 
+                    @Override
                     public void dragExit(DropTargetEvent dte) {
                     }
 
+                    @Override
                     public void dragOver(DropTargetDragEvent dtde) {
                     }
 
                     @SuppressWarnings("unchecked")
+                    @Override
                     public void drop(DropTargetDropEvent dtde) {
                         try {
                             dtde.acceptDrop(DnDConstants.ACTION_COPY_OR_MOVE);
@@ -133,6 +137,7 @@ public class AttachmentsPanel extends javax.swing.JPanel {
                         }
                     }
 
+                    @Override
                     public void dropActionChanged(DropTargetDragEvent dtde) {
                     }
                 });
@@ -168,6 +173,7 @@ public class AttachmentsPanel extends javax.swing.JPanel {
 
             addFileBtn.setToolTipText("Adds an attachment");
             addFileBtn.addActionListener(new java.awt.event.ActionListener() {
+                @Override
                 public void actionPerformed(java.awt.event.ActionEvent evt) {
                     addFileBtnActionPerformed(evt);
                 }
@@ -178,6 +184,7 @@ public class AttachmentsPanel extends javax.swing.JPanel {
             removeBtn.setToolTipText("Removes the selected attachment");
             removeBtn.setEnabled(false);
             removeBtn.addActionListener(new java.awt.event.ActionListener() {
+                @Override
                 public void actionPerformed(java.awt.event.ActionEvent evt) {
                     removeBtnActionPerformed(evt);
                 }
@@ -188,6 +195,7 @@ public class AttachmentsPanel extends javax.swing.JPanel {
             reloadBtn.setToolTipText("Reloads the selected attachment");
             reloadBtn.setEnabled(false);
             reloadBtn.addActionListener(new java.awt.event.ActionListener() {
+                @Override
                 public void actionPerformed(java.awt.event.ActionEvent evt) {
                     reloadBtnActionPerformed(evt);
                 }
@@ -200,6 +208,7 @@ public class AttachmentsPanel extends javax.swing.JPanel {
         exportBtn.setToolTipText("Exports the selected attachment to a file");
         exportBtn.setEnabled(false);
         exportBtn.addActionListener(new java.awt.event.ActionListener() {
+            @Override
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 exportBtnActionPerformed(evt);
             }
@@ -211,6 +220,7 @@ public class AttachmentsPanel extends javax.swing.JPanel {
         add(jPanel1, java.awt.BorderLayout.NORTH);
 
         fileTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+            @Override
             public void valueChanged(ListSelectionEvent e) {
                 if (removeBtn != null) {
                     removeBtn.setEnabled(fileTable.getSelectedRowCount() > 0);
@@ -222,6 +232,7 @@ public class AttachmentsPanel extends javax.swing.JPanel {
         });
 
         fileTable.addMouseListener(new MouseAdapter() {
+            @Override
             public void mouseClicked(MouseEvent e) {
                 if (e.getClickCount() < 2) {
                     return;
@@ -270,13 +281,13 @@ public class AttachmentsPanel extends javax.swing.JPanel {
 
     private void exportAttachment(File file, Attachment attachment, boolean showOpenQuery)
             throws FileNotFoundException, IOException, Exception, MalformedURLException {
-        FileOutputStream out = new FileOutputStream(file);
-
-        long total = Tools.writeAll(out, attachment.getInputStream());
-        out.close();
+        long total;
+        try (FileOutputStream out = new FileOutputStream(file)) {
+            total = Tools.writeAll(out, attachment.getInputStream());
+        }
         if (!showOpenQuery
                 || UISupport.confirm("Written [" + total + "] bytes to " + file.getName() + ", open in browser?",
-                "Saved File")) {
+                        "Saved File")) {
             Tools.openURL(file.toURI().toURL().toString());
         }
     }
@@ -292,7 +303,7 @@ public class AttachmentsPanel extends javax.swing.JPanel {
             return;
         }
 
-        File file = UISupport.getFileDialogs().open(this, "Reload Attachment..", "*", "Any File", attachment.getUrl());
+        File file = UISupport.getFileDialogs().open(this, "Reload Attachment..", new String[]{ "*" }, "Any File", attachment.getUrl());
         if (file != null) {
             Boolean retval = UISupport.confirmOrCancel("Cache attachment in request?", "Reload Attachment");
             if (retval == null) {
@@ -351,8 +362,8 @@ public class AttachmentsPanel extends javax.swing.JPanel {
     private AttachmentPartCellEditor attachmentPartCellEditor;
 
     // End of variables declaration//GEN-END:variables
-
     private class AttachmentPartCellEditor extends DefaultCellEditor {
+
         public AttachmentPartCellEditor() {
             super(new JComboBox(new PartsComboBoxModel()));
         }
@@ -361,6 +372,7 @@ public class AttachmentsPanel extends javax.swing.JPanel {
             ((PartsComboBoxModel) ((JComboBox) editorComponent).getModel()).release();
         }
 
+        @Override
         public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
             PartsComboBoxModel model = ((PartsComboBoxModel) ((JComboBox) editorComponent).getModel());
             ((JComboBox) editorComponent).setModel(model.init(tableModel.getAttachmentAt(row)));
@@ -370,6 +382,7 @@ public class AttachmentsPanel extends javax.swing.JPanel {
     }
 
     private final class PartsComboBoxModel extends AbstractListModel implements ComboBoxModel, PropertyChangeListener {
+
         private Attachment attachment;
         private AttachmentPart[] parts;
 
@@ -398,24 +411,29 @@ public class AttachmentsPanel extends javax.swing.JPanel {
             return this;
         }
 
+        @Override
         public Object getElementAt(int index) {
             return parts == null ? null : parts[index].getName();
         }
 
+        @Override
         public int getSize() {
             return parts == null ? 0 : parts.length;
         }
 
+        @Override
         public Object getSelectedItem() {
             return attachment == null ? null : attachment.getPart();
         }
 
+        @Override
         public void setSelectedItem(Object anItem) {
             if (attachment != null) {
                 attachment.setPart((String) anItem);
             }
         }
 
+        @Override
         public void propertyChange(PropertyChangeEvent arg0) {
             // delete our current one?
             if (arg0.getOldValue() == attachment && arg0.getNewValue() == null) {

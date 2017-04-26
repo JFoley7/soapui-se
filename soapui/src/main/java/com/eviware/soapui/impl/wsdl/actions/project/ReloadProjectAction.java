@@ -13,7 +13,6 @@
  * express or implied. See the Licence for the specific language governing permissions and limitations 
  * under the Licence. 
  */
-
 package com.eviware.soapui.impl.wsdl.actions.project;
 
 import com.eviware.soapui.impl.wsdl.WsdlProject;
@@ -28,14 +27,15 @@ import java.io.File;
  *
  * @author ole.matzura
  */
-
 public class ReloadProjectAction extends AbstractSoapUIAction<WsdlProject> {
+
     public static final String SOAPUI_ACTION_ID = "ReloadProjectAction";
 
     public ReloadProjectAction() {
         super("Reload Project", "Reloads this project from file");
     }
 
+    @Override
     public void perform(WsdlProject project, Object param) {
         if (project.isRemote()) {
             String path = UISupport.prompt("Reload remote project URL", getName(), project.getPath());
@@ -47,7 +47,7 @@ public class ReloadProjectAction extends AbstractSoapUIAction<WsdlProject> {
                 }
             }
         } else {
-            File file = UISupport.getFileDialogs().open(this, "Reload Project", ".xml", "SoapUI Project Files (*.xml)",
+            File file = UISupport.getFileDialogs().open(this, "Reload Project", new String[]{ ".xml" }, "SoapUI Project Files (*.xml)",
                     project.getPath());
             if (file != null) {
                 try {

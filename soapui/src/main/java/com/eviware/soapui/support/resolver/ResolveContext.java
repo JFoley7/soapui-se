@@ -13,7 +13,6 @@
  * express or implied. See the Licence for the specific language governing permissions and limitations 
  * under the Licence. 
  */
-
 package com.eviware.soapui.support.resolver;
 
 import com.eviware.soapui.impl.wsdl.AbstractWsdlModelItem;
@@ -25,6 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ResolveContext<T extends AbstractWsdlModelItem<?>> {
+
     private List<PathToResolve> pathsToResolve = new ArrayList<PathToResolve>();
     private final T modelItem;
 
@@ -43,7 +43,7 @@ public class ResolveContext<T extends AbstractWsdlModelItem<?>> {
     }
 
     public PathToResolve addPathToResolve(AbstractWsdlModelItem<?> owner, String description, String path,
-                                          Resolver resolver) {
+            Resolver resolver) {
         PathToResolve pathToResolve = new PathToResolve(owner, description, path);
         pathToResolve.addResolvers(resolver);
         pathsToResolve.add(pathToResolve);
@@ -51,6 +51,7 @@ public class ResolveContext<T extends AbstractWsdlModelItem<?>> {
     }
 
     public class PathToResolve {
+
         private final AbstractWsdlModelItem<?> owner;
         private final String description;
         private List<Resolver> resolvers = new ArrayList<Resolver>();
@@ -179,6 +180,7 @@ public class ResolveContext<T extends AbstractWsdlModelItem<?>> {
     }
 
     public interface Resolver {
+
         public boolean resolve();
 
         public boolean isResolved();
@@ -222,6 +224,7 @@ public class ResolveContext<T extends AbstractWsdlModelItem<?>> {
     }
 
     public abstract static class FileResolver implements Resolver {
+
         private String title;
         private String extension;
         private String fileType;
@@ -238,18 +241,21 @@ public class ResolveContext<T extends AbstractWsdlModelItem<?>> {
             this.current = current;
         }
 
+        @Override
         public boolean isResolved() {
             return resolved;
         }
 
+        @Override
         public String getResolvedPath() {
             return result == null ? null : result.getAbsolutePath();
         }
 
         public abstract boolean apply(File newFile);
 
+        @Override
         public boolean resolve() {
-            result = UISupport.getFileDialogs().open(this, title, extension, fileType, current);
+            result = UISupport.getFileDialogs().open(this, title, new String[] { extension }, fileType, current);
             if (result != null) {
                 resolved = apply(result);
             }
@@ -257,6 +263,7 @@ public class ResolveContext<T extends AbstractWsdlModelItem<?>> {
             return resolved;
         }
 
+        @Override
         public Object getDescription() {
             return title;
         }
@@ -268,6 +275,7 @@ public class ResolveContext<T extends AbstractWsdlModelItem<?>> {
     }
 
     public abstract static class DirectoryResolver implements Resolver {
+
         private String title;
         private String current;
         private File result;

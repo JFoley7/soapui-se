@@ -13,7 +13,6 @@
  * express or implied. See the Licence for the specific language governing permissions and limitations 
  * under the Licence. 
  */
-
 package com.eviware.soapui.impl.wsdl.panels.teststeps;
 
 import com.eviware.soapui.impl.support.actions.ShowOnlineHelpAction;
@@ -51,9 +50,9 @@ import java.io.IOException;
  *
  * @author Ole.Matzura
  */
+public class PropertiesStepDesktopPanel extends ModelItemDesktopPanel<WsdlPropertiesTestStep> 
+        implements PropertyChangeListener {
 
-public class PropertiesStepDesktopPanel extends ModelItemDesktopPanel<WsdlPropertiesTestStep> implements
-        PropertyChangeListener {
     private final WsdlPropertiesTestStep testStep;
     private JTextField sourceField;
     private JTextField targetField;
@@ -119,6 +118,7 @@ public class PropertiesStepDesktopPanel extends ModelItemDesktopPanel<WsdlProper
 
         targetField.setToolTipText("The filename/url or referring system-property to save properties to");
         targetField.getDocument().addDocumentListener(new DocumentListenerAdapter() {
+            @Override
             public void update(Document document) {
                 if (updatingTarget) {
                     return;
@@ -153,16 +153,19 @@ public class PropertiesStepDesktopPanel extends ModelItemDesktopPanel<WsdlProper
         return new PropertyHolderTable(getModelItem());
     }
 
+    @Override
     public boolean onClose(boolean canCancel) {
         componentEnabler.release();
         propertiesTable.release();
         return release();
     }
 
+    @Override
     public JComponent getComponent() {
         return this;
     }
 
+    @Override
     public boolean dependsOn(ModelItem modelItem) {
         return modelItem == testStep || modelItem == testStep.getTestCase()
                 || modelItem == testStep.getTestCase().getTestSuite()
@@ -170,14 +173,16 @@ public class PropertiesStepDesktopPanel extends ModelItemDesktopPanel<WsdlProper
     }
 
     private class SetPropertiesSourceAction extends AbstractAction {
+
         public SetPropertiesSourceAction() {
             putValue(Action.SMALL_ICON, UISupport.createImageIcon("/set_properties_source.gif"));
             putValue(Action.SHORT_DESCRIPTION, "Selects the properties source file");
         }
 
+        @Override
         public void actionPerformed(ActionEvent e) {
             String root = ModelSupport.getResourceRoot(testStep);
-            File file = UISupport.getFileDialogs().open(this, "Set properties source", "properties",
+            File file = UISupport.getFileDialogs().open(this, "Set properties source", new String[]{ "properties" },
                     "Properties Files (*.properties)", root);
             if (file != null) {
                 updatingSource = true;
@@ -196,11 +201,13 @@ public class PropertiesStepDesktopPanel extends ModelItemDesktopPanel<WsdlProper
     }
 
     private class ReloadPropertiesFromSourceAction extends AbstractAction {
+
         public ReloadPropertiesFromSourceAction() {
             putValue(Action.SMALL_ICON, UISupport.createImageIcon("/reload_properties.gif"));
             putValue(Action.SHORT_DESCRIPTION, "Reloads the current properties from the selected file");
         }
 
+        @Override
         public void actionPerformed(ActionEvent e) {
             if (StringUtils.isNullOrEmpty(testStep.getSource())) {
                 UISupport.showErrorMessage("Missing source-file to load from");
@@ -218,14 +225,16 @@ public class PropertiesStepDesktopPanel extends ModelItemDesktopPanel<WsdlProper
     }
 
     private class SetPropertiesTargetAction extends AbstractAction {
+
         public SetPropertiesTargetAction() {
             putValue(Action.SMALL_ICON, UISupport.createImageIcon("/set_properties_target.gif"));
             putValue(Action.SHORT_DESCRIPTION, "Selects the properties target file");
         }
 
+        @Override
         public void actionPerformed(ActionEvent e) {
             String root = ModelSupport.getResourceRoot(testStep);
-            File file = UISupport.getFileDialogs().saveAs(this, "Set properties target", "properties",
+            File file = UISupport.getFileDialogs().saveAs(this, "Set properties target", new String[]{ "properties" },
                     "Properties Files (*.properties)", new File(root));
             if (file != null) {
                 updatingTarget = true;
@@ -243,6 +252,7 @@ public class PropertiesStepDesktopPanel extends ModelItemDesktopPanel<WsdlProper
         }
     }
 
+    @Override
     public void propertyChange(PropertyChangeEvent evt) {
         if (!updatingSource && evt.getPropertyName().equals(WsdlPropertiesTestStep.SOURCE_PROPERTY)) {
             sourceField.setText(evt.getNewValue().toString());
@@ -259,7 +269,7 @@ public class PropertiesStepDesktopPanel extends ModelItemDesktopPanel<WsdlProper
         return super.release();
     }
 
-	/*
+    /*
      * public class PropertiesTransferHandler extends
 	 * AbstractPropertiesTransferHandler { public
 	 * PropertiesTransferHandler(JComponent component) { super(component); }
@@ -268,5 +278,5 @@ public class PropertiesStepDesktopPanel extends ModelItemDesktopPanel<WsdlProper
 	 * propertiesTable.getSelectedRow(); if (rowIndex == -1) return null;
 	 * 
 	 * return testStep.getTestStepPropertyAt(rowIndex); } }
-	 */
+     */
 }

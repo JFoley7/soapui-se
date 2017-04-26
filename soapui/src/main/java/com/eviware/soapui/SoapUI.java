@@ -13,7 +13,6 @@
  * express or implied. See the Licence for the specific language governing permissions and limitations 
  * under the Licence. 
  */
-
 package com.eviware.soapui;
 
 import com.eviware.soapui.actions.SaveAllProjectsAction;
@@ -186,6 +185,7 @@ import static com.eviware.soapui.impl.support.HttpUtils.urlEncodeWithUtf8;
  * Main SoapUI entry point.
  */
 public class SoapUI {
+
     // ------------------------------ CONSTANTS ------------------------------
     public static final String DEFAULT_DESKTOP = "Default";
     public static final String CURRENT_SOAPUI_WORKSPACE = SoapUI.class.getName() + "@workspace";
@@ -271,7 +271,6 @@ public class SoapUI {
     }
 
     // --------------------------- CONSTRUCTORS ---------------------------
-
     private SoapUI() {
     }
 
@@ -318,7 +317,7 @@ public class SoapUI {
         desktopPanelsList = new JDesktopPanelsList(desktop);
 
         mainInspector = JInspectorPanelFactory.build(buildContentPanel(), SwingConstants.LEFT);
-        mainInspector.addInspector(new JComponentInspector<JComponent>(buildMainPanel(), "Navigator",
+        mainInspector.addInspector(new JComponentInspector(buildMainPanel(), "Navigator",
                 "The SoapUI Navigator", true));
         mainInspector.setCurrentInspector("Navigator");
         frame.setJMenuBar(buildMainMenu());
@@ -352,9 +351,9 @@ public class SoapUI {
         mainToolbar.setRollover(true);
         mainToolbar.putClientProperty(Options.HEADER_STYLE_KEY, HeaderStyle.BOTH);
         mainToolbar.addSpace(20);
-        mainToolbar.add(new NewProjectActionDelegate("/new-empty-project-icon.png","Empty", NewEmptyProjectAction.SOAPUI_ACTION_ID));
-        mainToolbar.add(new NewProjectActionDelegate("/new-soap-project-icon.png","SOAP", NewWsdlProjectAction.SOAPUI_ACTION_ID));
-        mainToolbar.add(new NewProjectActionDelegate("/new-rest-project-icon.png","REST", NewRestProjectAction.SOAPUI_ACTION_ID));
+        mainToolbar.add(new NewProjectActionDelegate("/new-empty-project-icon.png", "Empty", NewEmptyProjectAction.SOAPUI_ACTION_ID));
+        mainToolbar.add(new NewProjectActionDelegate("/new-soap-project-icon.png", "SOAP", NewWsdlProjectAction.SOAPUI_ACTION_ID));
+        mainToolbar.add(new NewProjectActionDelegate("/new-rest-project-icon.png", "REST", NewRestProjectAction.SOAPUI_ACTION_ID));
         mainToolbar.add(new ImportWsdlProjectActionDelegate());
         mainToolbar.add(new SaveAllActionDelegate());
         mainToolbar.addSpace(2);
@@ -421,7 +420,6 @@ public class SoapUI {
             Tools.openURL(HelpUrls.COMMUNITY_SEARCH_URL);
         }
     }
-
 
     private JMenuBar buildMainMenu() {
         menuBar = new JMenuBar() {
@@ -500,7 +498,7 @@ public class SoapUI {
         helpMenu.addSeparator();
         helpMenu.add(new ShowOnlineHelpAction("SoapUI NG Pro Trial", HelpUrls.TRIAL_URL,
                 "Apply for SoapUI NG Pro Trial License", "/SoapUI-OS-5.2_16-16.png"));
-        helpMenu.add(new OpenUrlAction("Privacy Policy", "http://www.soapui.org"+HelpUrls.SMARTBEAR_PRIVACY_POLICY_URL));
+        helpMenu.add(new OpenUrlAction("Privacy Policy", "http://www.soapui.org" + HelpUrls.SMARTBEAR_PRIVACY_POLICY_URL));
         helpMenu.addSeparator();
         helpMenu.add(new OpenUrlAction("soapui.org", "http://www.soapui.org"));
         helpMenu.add(new OpenUrlAction("smartbear.com", HelpUrls.SMARTBEAR_WEB_SITE_START_PAGE));
@@ -606,7 +604,7 @@ public class SoapUI {
 
     private JComponent buildMainPanel() {
         JInspectorPanel inspectorPanel = JInspectorPanelFactory.build(navigator);
-        inspectorPanel.addInspector(new JComponentInspector<JComponent>(buildOverviewPanel(), "Properties",
+        inspectorPanel.addInspector(new JComponentInspector(buildOverviewPanel(), "Properties",
                 "Properties for the currently selected item", true));
         inspectorPanel.setDividerLocation(500);
         inspectorPanel.setResizeWeight(0.6);
@@ -673,7 +671,6 @@ public class SoapUI {
     }
 
     // -------------------------- OTHER METHODS --------------------------
-
     public static synchronized void log(final Object msg) {
         if (logMonitor == null) {
             if (!isCommandLine && logCache.size() < 1000) {
@@ -687,6 +684,7 @@ public class SoapUI {
             logMonitor.logEvent(msg);
         } else {
             SwingUtilities.invokeLater(new Runnable() {
+                @Override
                 public void run() {
                     logMonitor.logEvent(msg);
                 }
@@ -695,8 +693,9 @@ public class SoapUI {
     }
 
     // -------------------------- INNER CLASSES --------------------------
-
     private static final class SoapUIRunner implements Runnable {
+
+        @Override
         public void run() {
             boolean isDebug = java.lang.management.ManagementFactory.getRuntimeMXBean().
                     getInputArguments().toString().indexOf("-agentlib:jdwp") > 0;
@@ -722,6 +721,7 @@ public class SoapUI {
 
                 if (getSettings().getBoolean(UISettings.SHOW_STARTUP_PAGE) && !isBrowserDisabled()) {
                     SwingUtilities.invokeLater(new Runnable() {
+                        @Override
                         public void run() {
                             showStarterPage();
                         }
@@ -752,12 +752,14 @@ public class SoapUI {
     }
 
     private static final class WsdlProjectCreator implements Runnable {
+
         private final String arg;
 
         public WsdlProjectCreator(String arg) {
             this.arg = arg;
         }
 
+        @Override
         public void run() {
             SoapUIAction<ModelItem> action = getActionRegistry().getAction(NewWsdlProjectAction.SOAPUI_ACTION_ID);
             if (action != null) {
@@ -767,12 +769,14 @@ public class SoapUI {
     }
 
     private static final class RestProjectCreator implements Runnable {
+
         private final URL arg;
 
         public RestProjectCreator(URL arg) {
             this.arg = arg;
         }
 
+        @Override
         public void run() {
             try {
                 WsdlProject project = (WsdlProject) getWorkspace().createProject(arg.getHost(), null);
@@ -786,8 +790,8 @@ public class SoapUI {
         }
     }
 
-
     private final class InternalDesktopListener extends DesktopListenerAdapter {
+
         @Override
         public void desktopPanelSelected(DesktopPanel desktopPanel) {
             ModelItem modelItem = desktopPanel.getModelItem();
@@ -798,6 +802,7 @@ public class SoapUI {
     }
 
     private final class MainFrameWindowListener extends WindowAdapter {
+
         @Override
         public void windowClosing(WindowEvent e) {
             if (onExit()) {
@@ -941,7 +946,7 @@ public class SoapUI {
     }
 
     public static List<Image> getFrameIcons() {
-        List<Image> iconList = new ArrayList<Image>();
+        List<Image> iconList = new ArrayList();
         for (String iconPath : FRAME_ICON.split(";")) {
             iconList.add(UISupport.createImageIcon(iconPath).getImage());
         }
@@ -1016,12 +1021,14 @@ public class SoapUI {
         }
 
         soapUICore.getSettings().addSettingsListener(new SettingsListener() {
+            @Override
             public void settingChanged(String name, String newValue, String oldValue) {
                 if (name.equals(UISettings.DESKTOP_TYPE)) {
                     changeDesktop(DesktopRegistry.getInstance().createDesktop(newValue, SoapUI.workspace));
                 }
             }
 
+            @Override
             public void settingsReloaded() {
                 // TODO Auto-generated method stub
 
@@ -1158,8 +1165,10 @@ public class SoapUI {
     }
 
     public class InternalNavigatorListener implements NavigatorListener {
+
         private PropertyHolderTable selectedPropertyHolderTable = null;
 
+        @Override
         public void nodeSelected(SoapUITreeNode treeNode) {
             if (treeNode == null) {
                 setOverviewPanel(null);
@@ -1218,12 +1227,14 @@ public class SoapUI {
     }
 
     private class ExitAction extends AbstractAction {
+
         public ExitAction() {
             super("Exit");
             putValue(Action.SHORT_DESCRIPTION, "Saves all projects and exits SoapUI");
             putValue(Action.ACCELERATOR_KEY, UISupport.getKeyStroke("menu Q"));
         }
 
+        @Override
         public void actionPerformed(ActionEvent e) {
             saveOnExit = true;
             WindowEvent windowEvent = new WindowEvent(frame, WindowEvent.WINDOW_CLOSING);
@@ -1237,6 +1248,7 @@ public class SoapUI {
             putValue(Action.NAME, "Proxy");
         }
 
+        @Override
         public void actionPerformed(ActionEvent e) {
             if (ProxyUtils.isProxyEnabled()) {
                 SoapUI.getSettings().setBoolean(ProxySettings.ENABLE_PROXY, false);
@@ -1280,33 +1292,39 @@ public class SoapUI {
     }
 
     private static class ShowStarterPageAction extends AbstractAction {
+
         public ShowStarterPageAction() {
             super("Starter Page");
             putValue(Action.SHORT_DESCRIPTION, "Shows the starter page");
         }
 
+        @Override
         public void actionPerformed(ActionEvent e) {
             showStarterPage();
         }
     }
 
     private class ToolbarForumSearchAction extends AbstractAction {
+
         public ToolbarForumSearchAction() {
             putValue(Action.SHORT_DESCRIPTION, "Searches the Smartbear Community Forum");
             putValue(Action.SMALL_ICON, UISupport.createImageIcon("/find.png"));
         }
 
+        @Override
         public void actionPerformed(ActionEvent e) {
             doCommunitySearch(searchField.getText());
         }
     }
 
     private class SearchForumAction extends AbstractAction {
+
         public SearchForumAction() {
             super("Search Forum");
             putValue(Action.SHORT_DESCRIPTION, "Searches the Smartbear Community Forum");
         }
 
+        @Override
         public void actionPerformed(ActionEvent e) {
             String text = UISupport.prompt("Search Text", "Search Community Forum", "");
             if (text == null) {
@@ -1332,6 +1350,7 @@ public class SoapUI {
     }
 
     private static class AboutAction extends AbstractAction {
+
         private static final String COPYRIGHT = "2004-" + Calendar.getInstance().get(Calendar.YEAR) + " smartbear.com";
         private static final String SOAPUI_WEBSITE = "http://www.soapui.org";
         private static final String SMARTBEAR_WEBSITE = "http://www.smartbear.com";
@@ -1341,6 +1360,7 @@ public class SoapUI {
             putValue(Action.SHORT_DESCRIPTION, "Shows information on SoapUI");
         }
 
+        @Override
         public void actionPerformed(ActionEvent e) {
             URI splashURI = null;
             try {
@@ -1356,29 +1376,29 @@ public class SoapUI {
                 SoapUI.logError(exception, "Could not read build info properties");
             }
 
-
             UISupport.showExtendedInfo(
                     "About SoapUI",
                     null,
                     "<html><body><p align=center> <font face=\"Verdana,Arial,Helvetica\"><strong><img src=\"" + splashURI
-                            + "\"><br>SoapUI " + SOAPUI_VERSION + "<br>"
-                            + "Copyright (C) " + COPYRIGHT + "<br>"
-                            + "<a href=\"" + SOAPUI_WEBSITE + "\">" + SOAPUI_WEBSITE + "</a> | "
-                            + "<a href=\"" + SMARTBEAR_WEBSITE + "\">" + SMARTBEAR_WEBSITE + "</a><br>"
-                            + "Build Date: " + Objects.firstNonNull(buildInfoProperties.getProperty("build.date"), "UNKNOWN BUILD DATE")
-                            + "</strong></font></p></body></html>",
-
+                    + "\"><br>SoapUI " + SOAPUI_VERSION + "<br>"
+                    + "Copyright (C) " + COPYRIGHT + "<br>"
+                    + "<a href=\"" + SOAPUI_WEBSITE + "\">" + SOAPUI_WEBSITE + "</a> | "
+                    + "<a href=\"" + SMARTBEAR_WEBSITE + "\">" + SMARTBEAR_WEBSITE + "</a><br>"
+                    + "Build Date: " + Objects.firstNonNull(buildInfoProperties.getProperty("build.date"), "UNKNOWN BUILD DATE")
+                    + "</strong></font></p></body></html>",
                     new Dimension(646, 480));   //Splash screen width + 70px, height + 175px
         }
     }
 
     private class ExitWithoutSavingAction extends AbstractAction {
+
         public ExitWithoutSavingAction() {
             super("Exit without saving");
             putValue(Action.SHORT_DESCRIPTION, "Exits SoapUI without saving");
             putValue(Action.ACCELERATOR_KEY, UISupport.getKeyStroke("ctrl shift Q"));
         }
 
+        @Override
         public void actionPerformed(ActionEvent e) {
             saveOnExit = false;
             WindowEvent windowEvent = new WindowEvent(frame, WindowEvent.WINDOW_CLOSING);
@@ -1387,11 +1407,13 @@ public class SoapUI {
     }
 
     private class SavePreferencesAction extends AbstractAction {
+
         public SavePreferencesAction() {
             super("Save Preferences");
             putValue(Action.SHORT_DESCRIPTION, "Saves all global preferences");
         }
 
+        @Override
         public void actionPerformed(ActionEvent e) {
             try {
                 soapUICore.saveSettings();
@@ -1461,13 +1483,15 @@ public class SoapUI {
     }
 
     static class NewProjectActionDelegate extends AbstractAction {
+
         String actionId;
+
         public NewProjectActionDelegate(String icon, String name, String actionId) {
             putValue(Action.SMALL_ICON, UISupport.createImageIcon(icon));
-            if(name.equals("Empty")){
+            if (name.equals("Empty")) {
                 putValue(Action.SHORT_DESCRIPTION, "Creates an empty project");
-            }else{
-               putValue(Action.SHORT_DESCRIPTION, "Creates a new "+name+" project");
+            } else {
+                putValue(Action.SHORT_DESCRIPTION, "Creates a new " + name + " project");
             }
             putValue(Action.NAME, name);
             this.actionId = actionId;
@@ -1487,6 +1511,7 @@ public class SoapUI {
     }
 
     private static class ImportWsdlProjectActionDelegate extends AbstractAction {
+
         public ImportWsdlProjectActionDelegate() {
             putValue(Action.SMALL_ICON, UISupport.createImageIcon("/import_toolbar_icon.png"));
             putValue(Action.SHORT_DESCRIPTION, "Imports an existing SoapUI Project into the current workspace");
@@ -1499,30 +1524,35 @@ public class SoapUI {
     }
 
     private static class SaveAllActionDelegate extends AbstractAction {
+
         public SaveAllActionDelegate() {
             putValue(Action.SMALL_ICON, UISupport.createImageIcon("/Save-all.png"));
             putValue(Action.SHORT_DESCRIPTION, "Saves all projects in the current workspace");
             putValue(Action.NAME, "Save All");
         }
 
+        @Override
         public void actionPerformed(ActionEvent e) {
             SoapUI.getActionRegistry().getAction(SaveAllProjectsAction.SOAPUI_ACTION_ID).perform(workspace, null);
         }
     }
 
     private class PreferencesActionDelegate extends AbstractAction {
+
         public PreferencesActionDelegate() {
             putValue(Action.SMALL_ICON, UISupport.createImageIcon("/preferences_toolbar_icon.png"));
             putValue(Action.SHORT_DESCRIPTION, "Sets Global SoapUI Preferences");
             putValue(Action.NAME, "Preferences");
         }
 
+        @Override
         public void actionPerformed(ActionEvent e) {
             SoapUIPreferencesAction.getInstance().actionPerformed(null);
         }
     }
 
     public static class ImportPreferencesAction extends AbstractAction {
+
         public static final String IMPORT_PREFERENCES_ACTION_NAME = "Import Preferences";
 
         public ImportPreferencesAction() {
@@ -1530,11 +1560,11 @@ public class SoapUI {
             putValue(Action.SHORT_DESCRIPTION, "Imports SoapUI Settings from another settings-file");
         }
 
+        @Override
         public void actionPerformed(ActionEvent e) {
             try {
                 // prompt for import
-                File file = UISupport.getFileDialogs().open(null, ImportPreferencesAction.IMPORT_PREFERENCES_ACTION_NAME,
-                        ".xml", "SoapUI Settings XML (*.xml)", null);
+                File file = UISupport.getFileDialogs().openXML(null, ImportPreferencesAction.IMPORT_PREFERENCES_ACTION_NAME);
                 if (file != null) {
                     soapUICore.importSettings(file);
                 }
@@ -1593,6 +1623,7 @@ public class SoapUI {
     }
 
     public class MaximizeDesktopAction extends AbstractAction {
+
         private JLogList lastLog;
         private int lastMainDividerLocation;
         private final InspectorLog4JMonitor log4JMonitor;
@@ -1606,6 +1637,7 @@ public class SoapUI {
             putValue(ACCELERATOR_KEY, UISupport.getKeyStroke("menu M"));
         }
 
+        @Override
         public void actionPerformed(ActionEvent e) {
             if (mainInspector.getCurrentInspector() != null || logMonitor.getCurrentLog() != null) {
                 lastMainDividerLocation = mainInspector.getDividerLocation();
@@ -1648,9 +1680,11 @@ public class SoapUI {
     }
 
     private static class AutoSaveTimerTask extends TimerTask {
+
         @Override
         public void run() {
             SwingUtilities.invokeLater(new Runnable() {
+                @Override
                 public void run() {
                     SoapUI.log("Autosaving Workspace");
                     WorkspaceImpl workspaceImplementation = (WorkspaceImpl) SoapUI.getWorkspace();
@@ -1683,6 +1717,7 @@ public class SoapUI {
     }
 
     private static class GCTimerTask extends TimerTask {
+
         @Override
         public void run() {
             System.gc();
@@ -1721,6 +1756,8 @@ public class SoapUI {
     }
 
     protected static class WindowInitializationTask implements Runnable {
+
+        @Override
         public void run() {
             expandWindow(frame);
             frame.setVisible(true);

@@ -13,7 +13,6 @@
  * express or implied. See the Licence for the specific language governing permissions and limitations 
  * under the Licence. 
  */
-
 package com.eviware.soapui.support.log;
 
 import com.eviware.soapui.SoapUI;
@@ -64,8 +63,8 @@ import java.util.concurrent.TimeUnit;
  *
  * @author Ole.Matzura
  */
-
 public class JLogList extends JPanel {
+
     private long maxRows = 1000;
     private JList logList;
     private final LogListModel model;
@@ -159,6 +158,7 @@ public class JLogList extends JPanel {
         model.ensureUpdateIsStarted();
     }
 
+    @Override
     public void setEnabled(boolean enabled) {
         super.setEnabled(enabled);
         logList.setEnabled(enabled);
@@ -166,7 +166,8 @@ public class JLogList extends JPanel {
     }
 
     private static class LogAreaCellRenderer extends DefaultListCellRenderer {
-        private Map<Level, Color> levelColors = new HashMap<Level, Color>();
+
+        private Map<Level, Color> levelColors = new HashMap();
 
         private LogAreaCellRenderer() {
             levelColors.put(Level.ERROR, new Color(192, 0, 0));
@@ -175,8 +176,9 @@ public class JLogList extends JPanel {
             levelColors.put(Level.DEBUG, new Color(0, 0, 128));
         }
 
+        @Override
         public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected,
-                                                      boolean cellHasFocus) {
+                boolean cellHasFocus) {
             JLabel component = (JLabel) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
 
             if (value instanceof LoggingEventWrapper) {
@@ -199,6 +201,7 @@ public class JLogList extends JPanel {
     }
 
     private final static class LoggingEventWrapper {
+
         private final LoggingEvent loggingEvent;
         private String str;
 
@@ -210,6 +213,7 @@ public class JLogList extends JPanel {
             return loggingEvent.getLevel();
         }
 
+        @Override
         public String toString() {
             if (str == null) {
                 StringBuilder builder = new StringBuilder();
@@ -252,13 +256,17 @@ public class JLogList extends JPanel {
     }
 
     private class InternalLogAppender extends AppenderSkeleton {
+
+        @Override
         protected void append(LoggingEvent event) {
             addLine(event);
         }
 
+        @Override
         public void close() {
         }
 
+        @Override
         public boolean requiresLayout() {
             return false;
         }
@@ -283,13 +291,10 @@ public class JLogList extends JPanel {
     }
 
     public void saveToFile(File file) {
-        try {
-            PrintWriter writer = new PrintWriter(file);
+        try (PrintWriter writer = new PrintWriter(file)) {
             for (int c = 0; c < model.getSize(); c++) {
                 writer.println(model.getElementAt(c));
             }
-
-            writer.close();
         } catch (Exception e) {
             UISupport.showErrorMessage(e);
         }
@@ -303,25 +308,28 @@ public class JLogList extends JPanel {
         this.tailing = tail;
     }
 
-	/*
+    /*
     Helper classes.
-	*/
-
+     */
     private class ClearAction extends AbstractAction {
+
         public ClearAction() {
             super("Clear");
         }
 
+        @Override
         public void actionPerformed(ActionEvent e) {
             model.clear();
         }
     }
 
     private class SetMaxRowsAction extends AbstractAction {
+
         public SetMaxRowsAction() {
             super("Set Max Rows");
         }
 
+        @Override
         public void actionPerformed(ActionEvent e) {
             String val = UISupport.prompt("Set maximum number of log rows to keep", "Set Max Rows",
                     String.valueOf(maxRows));
@@ -337,17 +345,19 @@ public class JLogList extends JPanel {
     }
 
     private class ExportToFileAction extends AbstractAction {
+
         public ExportToFileAction() {
             super("Export to File");
         }
 
+        @Override
         public void actionPerformed(ActionEvent e) {
             if (model.getSize() == 0) {
                 UISupport.showErrorMessage("Log is empty; nothing to export");
                 return;
             }
 
-            File file = UISupport.getFileDialogs().saveAs(JLogList.this, "Save Log [] to File", "*.log", "*.log", null);
+            File file = UISupport.getFileDialogs().saveAs(JLogList.this, "Save Log [] to File", new String[] { "*.log" }, "*.log", null);
             if (file != null) {
                 saveToFile(file);
             }
@@ -355,10 +365,12 @@ public class JLogList extends JPanel {
     }
 
     private class CopyAction extends AbstractAction {
+
         public CopyAction() {
             super("Copy to clipboard");
         }
 
+        @Override
         public void actionPerformed(ActionEvent e) {
             Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
 
@@ -382,10 +394,12 @@ public class JLogList extends JPanel {
     }
 
     private class EnableAction extends AbstractAction {
+
         public EnableAction() {
             super("Enable");
         }
 
+        @Override
         public void actionPerformed(ActionEvent e) {
             JLogList.this.setEnabled(enableMenuItem.isSelected());
         }
@@ -396,16 +410,18 @@ public class JLogList extends JPanel {
      *
      * @author Ole.Matzura
      */
-
     @SuppressWarnings("unchecked")
     private final class LogListModel extends AbstractListModel {
+
         private final List<Object> lines = Collections.synchronizedList(new TreeList());
         private ListUpdater updater = new ListUpdater();
 
+        @Override
         public int getSize() {
             return lines.size();
         }
 
+        @Override
         public Object getElementAt(int index) {
             return lines.get(index);
         }
@@ -418,6 +434,7 @@ public class JLogList extends JPanel {
 
             lines.clear();
             SwingUtilities.invokeLater(new Runnable() {
+                @Override
                 public void run() {
                     fireIntervalRemoved(LogListModel.this, 0, size - 1);
                 }
@@ -429,8 +446,10 @@ public class JLogList extends JPanel {
         }
 
         private class ListUpdater implements Runnable {
+
             private volatile boolean updating;
 
+            @Override
             public void run() {
                 String originalThreadName = Thread.currentThread().getName();
                 Thread.currentThread().setName("LogList Updater for " + title);
@@ -439,7 +458,7 @@ public class JLogList extends JPanel {
                     Object line;
                     while ((line = getNextLine()) != null) {
                         try {
-                            List<Object> linesToAddNow = new ArrayList<Object>();
+                            List<Object> linesToAddNow = new ArrayList();
                             linesToAddNow.add(line);
                             while ((line = linesToAdd.poll()) != null) {
                                 linesToAddNow.add(line);
@@ -478,10 +497,10 @@ public class JLogList extends JPanel {
                 }
             }
 
-
             private void updateJList(final int oldSize) {
                 try {
                     SwingUtilities.invokeAndWait(new Runnable() {
+                        @Override
                         public void run() {
                             fireIntervalAdded(LogListModel.this, oldSize, lines.size() - 1);
                             int linesToRemove = lines.size() - ((int) maxRows);

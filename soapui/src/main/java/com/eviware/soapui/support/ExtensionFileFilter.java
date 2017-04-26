@@ -28,9 +28,9 @@ final public class ExtensionFileFilter extends FileFilter {
     private final String[] extensions;
     private final String description;
 
-    public ExtensionFileFilter(String extension, String description) {
-        this(new String[]{extension.toLowerCase()}, description);
-    }
+//    public ExtensionFileFilter(String extension, String description) {
+//        this(new String[]{extension.toLowerCase()}, description);
+//    }
 
     public ExtensionFileFilter(String[] extensions, String description) {
         this.extensions = extensions;

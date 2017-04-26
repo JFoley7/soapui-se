@@ -27,7 +27,6 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import java.awt.event.ActionEvent;
 import java.io.File;
-import java.util.Map;
 
 public class FileFormComponent extends JPanel implements JFormComponent {
 
@@ -42,7 +41,17 @@ public class FileFormComponent extends JPanel implements JFormComponent {
         builder.addRelatedGap();
         builder.addFixed(new JButton(new SelectFileAction()));
     }
+    
+    public FileFormComponent(String tooltip, String description, String[] extensions) {
+        ButtonBarBuilder builder = new ButtonBarBuilder(this);
+        textField = new JTextField(30);
+        textField.setToolTipText(tooltip);
+        builder.addGriddedGrowing(textField);
+        builder.addRelatedGap();
+        builder.addFixed(new JButton(new SelectFileAction(description, extensions)));
+    }
 
+    @Override
     public void setValue(String value) {
         textField.setText(value);
     }
@@ -51,6 +60,7 @@ public class FileFormComponent extends JPanel implements JFormComponent {
         return textField;
     }
 
+    @Override
     public String getValue() {
         return textField.getText();
     }
@@ -65,18 +75,23 @@ public class FileFormComponent extends JPanel implements JFormComponent {
 
     public class SelectFileAction extends AbstractAction {
 
+        private String description = null;
+        private String[] extensions = null;
+        
         public SelectFileAction() {
             super("Browse...");
         }
         
-        public SelectFileAction(Map<String, String[]> files) {
-            
+        public SelectFileAction(String description, String[] extensions) {
+            this();
+            this.description = description;
+            this.extensions = extensions;
         }
 
         @Override
         public void actionPerformed(ActionEvent e) {
             String value = FileFormComponent.this.getValue();
-            File file = UISupport.getFileDialogs().open(this, "Select file", null, null,
+            File file = UISupport.getFileDialogs().open(this, "Select file", extensions, description,
                     StringUtils.hasContent(value) ? value : PathUtils.getExpandedResourceRoot(modelItem));
             if (file != null) {
                 setFile(file);

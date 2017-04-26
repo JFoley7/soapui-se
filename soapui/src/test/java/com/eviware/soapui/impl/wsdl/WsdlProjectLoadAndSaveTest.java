@@ -13,7 +13,6 @@
  * express or implied. See the Licence for the specific language governing permissions and limitations 
  * under the Licence. 
  */
-
 package com.eviware.soapui.impl.wsdl;
 
 import com.eviware.soapui.impl.WorkspaceImpl;
@@ -43,6 +42,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class WsdlProjectLoadAndSaveTest extends StubbedDialogsTestBase {
+
     private static final String PROJECT_NAME = "Project";
     private static final File TEMPORARY_FOLDER = Files.createTempDir();
     private static final String SAMPLE_PROJECT_RELATIVE_PATH = "/sample-soapui-project.xml";
@@ -127,7 +127,6 @@ public class WsdlProjectLoadAndSaveTest extends StubbedDialogsTestBase {
         assertThat(status, is(SaveStatus.CANCELLED));
     }
 
-
     private void answerYesWhenTheOverwriteDialogIsShown() {
         stubbedDialogs.mockConfirmWithReturnValue(true);
     }
@@ -142,11 +141,11 @@ public class WsdlProjectLoadAndSaveTest extends StubbedDialogsTestBase {
     }
 
     private void cancelWhenTheSaveAsFileDialogIsShown() {
-        when(mockedFileDialogs.saveAs(anyObject(), anyString(), anyString(), anyString(), isA(File.class))).thenReturn(null);
+        when(mockedFileDialogs.saveAs(anyObject(), anyString(), new String[] { anyString() }, anyString(), isA(File.class))).thenReturn(null);
     }
 
     private void verifyThatTheSaveAsDialogIsShown() {
-        verify(mockedFileDialogs).saveAs(anyObject(), anyString(), anyString(), anyString(), isA(File.class));
+        verify(mockedFileDialogs).saveAs(anyObject(), anyString(), new String[] { anyString() }, anyString(), isA(File.class));
     }
 
     private File createTemporaryProjectFile() {

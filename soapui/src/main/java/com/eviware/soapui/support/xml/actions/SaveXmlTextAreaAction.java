@@ -13,7 +13,6 @@
  * express or implied. See the Licence for the specific language governing permissions and limitations 
  * under the Licence. 
  */
-
 package com.eviware.soapui.support.xml.actions;
 
 import com.eviware.soapui.SoapUI;
@@ -36,8 +35,8 @@ import java.io.IOException;
  *
  * @author Ole.Matzura
  */
-
 public class SaveXmlTextAreaAction extends AbstractAction {
+
     private final RSyntaxTextArea textArea;
     private String dialogTitle;
     private static final Logger log = Logger.getLogger(SaveXmlTextAreaAction.class);
@@ -53,8 +52,9 @@ public class SaveXmlTextAreaAction extends AbstractAction {
         }
     }
 
+    @Override
     public void actionPerformed(ActionEvent e) {
-        File file = UISupport.getFileDialogs().saveAs(this, dialogTitle, ".xml", "XML Files (*.xml)", null);
+        File file = UISupport.getFileDialogs().saveAs(this, dialogTitle, new String[] { ".xml" }, "XML Files (*.xml)", null);
         if (file == null) {
             return;
         }

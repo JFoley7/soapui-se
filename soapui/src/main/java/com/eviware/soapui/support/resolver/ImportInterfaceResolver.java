@@ -13,7 +13,6 @@
  * express or implied. See the Licence for the specific language governing permissions and limitations 
  * under the Licence. 
  */
-
 package com.eviware.soapui.support.resolver;
 
 import com.eviware.soapui.impl.WsdlInterfaceFactory;
@@ -33,6 +32,7 @@ import javax.swing.JOptionPane;
 import java.io.File;
 
 public abstract class ImportInterfaceResolver implements Resolver {
+
     private boolean resolved = false;
     private WsdlTestStep item;
 
@@ -40,14 +40,17 @@ public abstract class ImportInterfaceResolver implements Resolver {
         this.item = item;
     }
 
+    @Override
     public String getResolvedPath() {
         return "";
     }
 
+    @Override
     public boolean isResolved() {
         return resolved;
     }
 
+    @Override
     public boolean resolve() {
         String[] options = {"File(Wsdl)", "Url(Wsdl)", "File(Wadl)", "Url(Wadl)", "Cancel"};
         int choosed = JOptionPane
@@ -92,7 +95,7 @@ public abstract class ImportInterfaceResolver implements Resolver {
 
     private void loadWadlFromFile() {
         WsdlProject project = item.getTestCase().getTestSuite().getProject();
-        File file = UISupport.getFileDialogs().open(this, "Select WADL file", ".wadl", "WADL Files (*.wadl)",
+        File file = UISupport.getFileDialogs().open(this, "Select WADL file", new String[] { ".wadl" }, "WADL Files (*.wadl)",
                 ProjectDirProvider.getProjectFolder(project));
         if (file == null) {
             return;
@@ -131,7 +134,7 @@ public abstract class ImportInterfaceResolver implements Resolver {
     private void loadWsdlFromFile() {
 
         WsdlProject project = item.getTestCase().getTestSuite().getProject();
-        File file = UISupport.getFileDialogs().open(this, "Select WSDL file", ".wsdl", "WSDL Files (*.wsdl)",
+        File file = UISupport.getFileDialogs().open(this, "Select WSDL file", new String[] { ".wsdl" }, "WSDL Files (*.wsdl)",
                 ProjectDirProvider.getProjectFolder(project));
         if (file == null) {
             return;

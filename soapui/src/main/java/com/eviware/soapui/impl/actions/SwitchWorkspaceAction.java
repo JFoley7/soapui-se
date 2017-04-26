@@ -13,7 +13,6 @@
  * express or implied. See the Licence for the specific language governing permissions and limitations 
  * under the Licence. 
  */
-
 package com.eviware.soapui.impl.actions;
 
 import com.eviware.soapui.SoapUI;
@@ -30,8 +29,8 @@ import java.io.File;
  *
  * @author ole.matzura
  */
-
 public class SwitchWorkspaceAction extends AbstractSoapUIAction<WorkspaceImpl> {
+
     public static final String SOAPUI_ACTION_ID = "SwitchWorkspaceAction";
     public static final MessageSupport messages = MessageSupport.getMessages(SwitchWorkspaceAction.class);
 
@@ -39,6 +38,7 @@ public class SwitchWorkspaceAction extends AbstractSoapUIAction<WorkspaceImpl> {
         super(messages.get("SwitchWorkspaceAction.Title"), messages.get("SwitchWorkspaceAction.Description"));
     }
 
+    @Override
     public void perform(WorkspaceImpl workspace, Object param) {
         if (SoapUI.getTestMonitor().hasRunningTests()) {
             UISupport.showErrorMessage(messages.get("SwitchWorkspaceAction.WhileTestsAreRunningError"));
@@ -51,7 +51,7 @@ public class SwitchWorkspaceAction extends AbstractSoapUIAction<WorkspaceImpl> {
             newPath = new File(param.toString());
         } else {
             newPath = UISupport.getFileDialogs().open(this, messages.get("SwitchWorkspaceAction.FileOpenTitle"),
-                    ".xml", "SoapUI Workspace (*.xml)", workspace.getPath());
+                    new String[]{ ".xml" }, "SoapUI Workspace (*.xml)", workspace.getPath());
         }
 
         if (newPath != null) {
@@ -72,7 +72,7 @@ public class SwitchWorkspaceAction extends AbstractSoapUIAction<WorkspaceImpl> {
                         return;
                     }
 
-                    save = val.booleanValue();
+                    save = val;
                 }
 
                 workspace.save(!save);

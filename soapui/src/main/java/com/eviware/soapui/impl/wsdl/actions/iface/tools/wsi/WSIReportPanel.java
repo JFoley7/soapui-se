@@ -13,7 +13,6 @@
  * express or implied. See the Licence for the specific language governing permissions and limitations 
  * under the Licence. 
  */
-
 package com.eviware.soapui.impl.wsdl.actions.iface.tools.wsi;
 
 import com.eviware.soapui.SoapUI;
@@ -42,8 +41,8 @@ import java.io.FileWriter;
  *
  * @author ole.matzura
  */
-
 public class WSIReportPanel extends JPanel {
+
     private File reportFile;
     private JEditorPane editorPane;
     private final String configFile;
@@ -51,7 +50,6 @@ public class WSIReportPanel extends JPanel {
     private SaveReportAction saveReportAction;
 
     // private BrowserComponent browser;
-
     public WSIReportPanel(File reportFile, String configFile, File logFile, boolean addToolbar) throws Exception {
         super(new BorderLayout());
 
@@ -97,7 +95,6 @@ public class WSIReportPanel extends JPanel {
 
         // browser = new BrowserComponent( false );
         // browser.navigate( reportFile.toURI().toURL().toString(), null );
-
         JScrollPane scrollPane = new JScrollPane(editorPane);
         UISupport.addPreviewCorner(scrollPane, true);
         tabs.addTab("Report", scrollPane);
@@ -118,26 +115,25 @@ public class WSIReportPanel extends JPanel {
     }
 
     public class SaveReportAction extends AbstractAction {
+
         public SaveReportAction() {
             putValue(Action.SMALL_ICON, UISupport.createImageIcon("/export.png"));
             putValue(Action.SHORT_DESCRIPTION, "Saves this report to a file");
         }
 
+        @Override
         public void actionPerformed(ActionEvent e) {
-            File file = UISupport.getFileDialogs().saveAs(this, "Save Report", "html", "HTML files", null);
+            File file = UISupport.getFileDialogs().saveAs(this, "Save Report", new String[]{ "html" }, "HTML files", null);
             if (file == null) {
                 return;
             }
 
-            try {
-                FileWriter writer = new FileWriter(file);
+            try (FileWriter writer = new FileWriter(file)) {
                 writer.write(editorPane.getText());
-                writer.close();
-
-                UISupport.showInfoMessage("Report saved to [" + file.getAbsolutePath() + "]");
             } catch (Exception e1) {
                 SoapUI.logError(e1);
             }
+            UISupport.showInfoMessage("Report saved to [" + file.getAbsolutePath() + "]");
         }
     }
 }

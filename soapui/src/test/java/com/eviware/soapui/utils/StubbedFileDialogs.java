@@ -23,7 +23,7 @@ import java.io.File;
 public class StubbedFileDialogs implements XFileDialogs {
 
     @Override
-    public File saveAs(Object action, String title, String extension, String fileType, File defaultFile) {
+    public File saveAs(Object action, String title, String[] extensions, String fileType, File defaultFile) {
         return null;
     }
 
@@ -37,10 +37,10 @@ public class StubbedFileDialogs implements XFileDialogs {
         return null;
     }
 
-    @Override
-    public File open(Object action, String title, String extension, String fileType, String current) {
-        return null;
-    }
+//    @Override
+//    public File open(Object action, String title, String extension, String fileType, String current) {
+//        return null;
+//    }
 
     @Override
     public File open(Object action, String title, String[] extensions, String fileType, String current) {

@@ -13,7 +13,6 @@
  * express or implied. See the Licence for the specific language governing permissions and limitations 
  * under the Licence. 
  */
-
 package com.eviware.soapui.impl.wsdl.actions.mockservice;
 
 import com.eviware.soapui.impl.wsdl.mock.WsdlMockService;
@@ -28,10 +27,11 @@ public class ExportMockService extends AbstractSoapUIAction<WsdlMockService> {
         super("Export", "Export this mock service");
     }
 
+    @Override
     public void perform(WsdlMockService mService, Object param) {
         mService.beforeSave();
         String defaultFileName = System.getProperty("user.home") + File.separator + mService.getName() + ".xml";
-        File file = UISupport.getFileDialogs().saveAs(this, "Select test case file", "xml", "XML",
+        File file = UISupport.getFileDialogs().saveAs(this, "Select test case file", new String[]{ "xml" }, "XML",
                 new File(defaultFileName));
 
         if (file == null) {

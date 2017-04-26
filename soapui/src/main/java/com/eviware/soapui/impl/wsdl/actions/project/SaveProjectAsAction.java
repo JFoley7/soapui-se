@@ -13,7 +13,6 @@
  * express or implied. See the Licence for the specific language governing permissions and limitations 
  * under the Licence. 
  */
-
 package com.eviware.soapui.impl.wsdl.actions.project;
 
 import com.eviware.soapui.impl.wsdl.WsdlProject;
@@ -29,21 +28,22 @@ import java.io.IOException;
  *
  * @author Ole.Matzura
  */
-
 public class SaveProjectAsAction extends AbstractSoapUIAction<WsdlProject> {
+
     public static final String SOAPUI_ACTION_ID = "SaveProjectAsAction";
 
     public SaveProjectAsAction() {
         super("Save Project As", "Saves this project to a new file");
     }
 
+    @Override
     public void perform(WsdlProject project, Object param) {
         try {
             String path = project.getPath();
             if (path == null) {
                 project.save();
             } else {
-                File file = UISupport.getFileDialogs().saveAs(this, "Select soapui project file", "xml", "XML",
+                File file = UISupport.getFileDialogs().saveAs(this, "Select soapui project file", new String[]{ "xml" }, "XML",
                         new File(path));
                 if (file == null) {
                     return;
