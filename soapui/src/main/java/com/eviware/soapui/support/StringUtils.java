@@ -13,7 +13,6 @@
  * express or implied. See the Licence for the specific language governing permissions and limitations 
  * under the Licence. 
  */
-
 package com.eviware.soapui.support;
 
 import com.eviware.soapui.support.types.StringList;
@@ -24,14 +23,24 @@ import java.io.LineNumberReader;
 import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
 import java.io.Writer;
+import java.nio.charset.Charset;
+import java.security.GeneralSecurityException;
+import java.security.InvalidKeyException;
+import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.StringTokenizer;
+import javax.crypto.Cipher;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
+import javax.xml.bind.DatatypeConverter;
 
 public class StringUtils {
+
     public static final String NEWLINE = System.getProperty("line.separator");
     public static final char DEFAULT_FILENAME_WHITESPACE_CHAR = '-';
+    private static final String KEY = "7f757bce0eb55763556790d96c37de56";  //poner en un fichero aparte
 
     public static String unquote(String str) {
         int length = str == null ? -1 : str.length();
@@ -218,7 +227,6 @@ public class StringUtils {
      * replaces only white spaces from file name, uses the
      * DEFAULT_FILENAME_WHITESPACE_CHAR
      */
-
     public static String createFileName(String str) {
         return createFileName(str, DEFAULT_FILENAME_WHITESPACE_CHAR);
     }
@@ -402,5 +410,63 @@ public class StringUtils {
     public static String[] sortNames(String[] names) {
         Arrays.sort(names);
         return names;
+    }
+    
+    public static String encrypt(final String plainMessage) {
+        return encrypt(plainMessage, KEY);
+    }
+    
+    public static String encrypt(final String plainMessage, String key) {
+        final byte[] symKeyData = DatatypeConverter.parseHexBinary(key);
+        final byte[] encodedMessage = plainMessage.getBytes(Charset.forName("UTF-8"));
+        try {
+            final Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+            final int blockSize = cipher.getBlockSize();
+            final SecretKeySpec symKey = new SecretKeySpec(symKeyData, "AES");
+            final byte[] ivData = new byte[blockSize];
+            final SecureRandom rnd = SecureRandom.getInstance("SHA1PRNG");
+            rnd.nextBytes(ivData);
+            final IvParameterSpec iv = new IvParameterSpec(ivData);
+            cipher.init(Cipher.ENCRYPT_MODE, symKey, iv);
+            final byte[] encryptedMessage = cipher.doFinal(encodedMessage);
+            final byte[] ivAndEncryptedMessage = new byte[ivData.length
+                    + encryptedMessage.length];
+            System.arraycopy(ivData, 0, ivAndEncryptedMessage, 0, blockSize);
+            System.arraycopy(encryptedMessage, 0, ivAndEncryptedMessage,
+                    blockSize, encryptedMessage.length);
+            return DatatypeConverter
+                    .printBase64Binary(ivAndEncryptedMessage);
+        } catch (InvalidKeyException e) {
+            throw new IllegalArgumentException("key argument does not contain a valid AES key");
+        } catch (GeneralSecurityException e) {
+            throw new IllegalStateException("Unexpected exception during encryption", e);
+        }
+    }
+
+    public static String decrypt(final String message) {
+        return decrypt(message, KEY);
+    }
+    
+    public static String decrypt(final String message, String key) {
+        try {
+            final byte[] symKeyData = DatatypeConverter.parseHexBinary(key);
+            final byte[] ivAndEncryptedMessage = DatatypeConverter
+                    .parseBase64Binary(message);
+            final Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+            final int blockSize = cipher.getBlockSize();
+            final SecretKeySpec symKey = new SecretKeySpec(symKeyData, "AES");
+            final byte[] ivData = new byte[blockSize];
+            System.arraycopy(ivAndEncryptedMessage, 0, ivData, 0, blockSize);
+            final IvParameterSpec iv = new IvParameterSpec(ivData);
+            final byte[] encryptedMessage = new byte[ivAndEncryptedMessage.length - blockSize];
+            System.arraycopy(ivAndEncryptedMessage, blockSize,
+                    encryptedMessage, 0, encryptedMessage.length);
+            cipher.init(Cipher.DECRYPT_MODE, symKey, iv);
+            final byte[] encodedMessage = cipher.doFinal(encryptedMessage);
+            return new String(encodedMessage, Charset.forName("UTF-8"));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return message;
+        }
     }
 }
