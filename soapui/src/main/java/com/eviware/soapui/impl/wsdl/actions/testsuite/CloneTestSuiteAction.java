@@ -107,7 +107,7 @@ public class CloneTestSuiteAction extends AbstractSoapUIAction<WsdlTestSuite> {
             actions.setDefaultAction(cloneAction);
 
 
-            dialog = ADialogBuilder.buildDialog(Form.class, actions, false);
+            dialog = ADialogBuilder.buildCustomDialog(Form.class, actions);
         }
 
         dialog.getFormField(Form.CLONE_DESCRIPTION).addFormFieldListener(new XFormFieldListener() {

@@ -13,7 +13,6 @@
  * express or implied. See the Licence for the specific language governing permissions and limitations 
  * under the Licence. 
  */
-
 package com.eviware.x.impl.swing;
 
 import com.eviware.soapui.support.HelpActionMarker;
@@ -33,6 +32,7 @@ import javax.swing.KeyStroke;
 import java.awt.event.ActionEvent;
 
 public class SwingXFormDialogBuilder extends XFormDialogBuilder {
+
     private String name;
     private SwingXFormDialog dialog;
 
@@ -58,10 +58,15 @@ public class SwingXFormDialogBuilder extends XFormDialogBuilder {
 
     @Override
     public XFormDialog buildDialog(ActionList actions, String description, ImageIcon icon) {
+        return buildDialog(actions, description, icon, true);
+    }
+    
+    @Override
+    public XFormDialog buildDialog(ActionList actions, String description, ImageIcon icon, boolean modal) {
         XForm[] forms = getForms();
-        dialog = forms.length > 1 ? new JTabbedFormDialog(name, forms, actions, description, icon) : new JFormDialog(
-                name, (SwingXFormImpl) forms[0], actions, description, icon);
-
+        dialog = forms.length > 1 
+                ? new JTabbedFormDialog(name, forms, actions, description, icon, modal) 
+                : new JFormDialog(name, (SwingXFormImpl) forms[0], actions, description, icon, modal);
         return dialog;
     }
 
@@ -101,6 +106,7 @@ public class SwingXFormDialogBuilder extends XFormDialogBuilder {
     }
 
     protected final class OKAction extends AbstractAction {
+
         public OKAction() {
             super("OK");
         }
@@ -114,10 +120,12 @@ public class SwingXFormDialogBuilder extends XFormDialogBuilder {
     }
 
     protected final class CancelAction extends AbstractAction {
+
         public CancelAction() {
             super("Cancel");
         }
 
+        @Override
         public void actionPerformed(ActionEvent e) {
             if (dialog != null) {
                 dialog.setReturnValue(XFormDialog.CANCEL_OPTION);
@@ -127,6 +135,7 @@ public class SwingXFormDialogBuilder extends XFormDialogBuilder {
     }
 
     public final class HelpAction extends AbstractAction implements HelpActionMarker {
+
         private String url;
 
         public HelpAction(String url) {
@@ -152,9 +161,10 @@ public class SwingXFormDialogBuilder extends XFormDialogBuilder {
             this.url = url;
         }
 
+        @Override
         public void actionPerformed(ActionEvent e) {
             Integer mods = e.getModifiers();
-            String helpUrl = Tools.modifyUrl (url, mods);
+            String helpUrl = Tools.modifyUrl(url, mods);
             Tools.openURL(helpUrl);
         }
     }

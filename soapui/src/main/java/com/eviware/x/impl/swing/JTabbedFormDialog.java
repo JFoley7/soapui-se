@@ -13,7 +13,6 @@
  * express or implied. See the Licence for the specific language governing permissions and limitations 
  * under the Licence. 
  */
-
 package com.eviware.x.impl.swing;
 
 import com.eviware.soapui.support.UISupport;
@@ -40,13 +39,18 @@ import java.util.Arrays;
 import java.util.List;
 
 public class JTabbedFormDialog extends SwingXFormDialog {
+
     private JDialog dialog;
-    private List<SwingXFormImpl> forms = new ArrayList<SwingXFormImpl>();
+    private List<SwingXFormImpl> forms = new ArrayList();
     private JTabbedPane tabs;
     private JButtonBar buttons;
 
     public JTabbedFormDialog(String name, XForm[] forms, ActionList actions, String description, ImageIcon icon) {
-        dialog = new JDialog(UISupport.getMainFrame(), name, true);
+        this(name, forms, actions, description, icon, true);
+    }
+    
+    public JTabbedFormDialog(String name, XForm[] forms, ActionList actions, String description, ImageIcon icon, boolean modal) {
+        dialog = new JDialog(UISupport.getMainFrame(), name, modal);
         tabs = new JTabbedPane();
         for (XForm form : forms) {
             SwingXFormImpl swingFormImpl = ((SwingXFormImpl) form);
@@ -75,30 +79,35 @@ public class JTabbedFormDialog extends SwingXFormDialog {
         }
     }
 
+    @Override
     public void setSize(int i, int j) {
         dialog.setSize(i, j);
     }
 
+    @Override
     public XForm[] getForms() {
-        List<XForm> result = new ArrayList<XForm>();
+        List<XForm> result = new ArrayList();
         for (XForm form : forms) {
             result.add(form);
         }
         return result.toArray(new XForm[result.size()]);
     }
 
+    @Override
     public void setValues(StringToStringMap values) {
         for (XForm form : forms) {
             form.setValues(values);
         }
     }
 
+    @Override
     public void setOptions(String field, Object[] options) {
         for (XForm form : forms) {
             form.setOptions(field, options);
         }
     }
 
+    @Override
     public XFormField getFormField(String name) {
         for (XForm form : forms) {
             XFormField formField = form.getFormField(name);
@@ -110,12 +119,14 @@ public class JTabbedFormDialog extends SwingXFormDialog {
         return null;
     }
 
+    @Override
     public void addAction(Action action) {
         DefaultActionList actions = new DefaultActionList();
         actions.addAction(action);
         buttons.addActions(actions);
     }
 
+    @Override
     public StringToStringMap getValues() {
         StringToStringMap result = new StringToStringMap();
 
@@ -126,6 +137,7 @@ public class JTabbedFormDialog extends SwingXFormDialog {
         return result;
     }
 
+    @Override
     public void setVisible(boolean visible) {
         if (visible) {
             tabs.setSelectedIndex(0);
@@ -136,11 +148,12 @@ public class JTabbedFormDialog extends SwingXFormDialog {
         dialog.setVisible(visible);
     }
 
+    @Override
     public boolean validate() {
         for (int i = 0; i < forms.size(); i++) {
             XFormField[] formFields = forms.get(i).getFormFields();
-            for (int c = 0; c < formFields.length; c++) {
-                ValidationMessage[] messages = formFields[c].validate();
+            for (XFormField formField : formFields) {
+                ValidationMessage[] messages = formField.validate();
                 if (messages != null && messages.length > 0) {
                     tabs.setSelectedIndex(i);
                     ((AbstractSwingXFormField<?>) messages[0].getFormField()).getComponent().requestFocus();
@@ -153,12 +166,14 @@ public class JTabbedFormDialog extends SwingXFormDialog {
         return true;
     }
 
+    @Override
     public void setFormFieldProperty(String name, Object value) {
         for (XForm form : forms) {
             form.setFormFieldProperty(name, value);
         }
     }
 
+    @Override
     public String getValue(String field) {
         for (XForm form : forms) {
             if (form.getComponent(field) != null) {
@@ -169,6 +184,7 @@ public class JTabbedFormDialog extends SwingXFormDialog {
         return null;
     }
 
+    @Override
     public void setValue(String field, String value) {
         for (XForm form : forms) {
             if (form.getComponent(field) != null) {
@@ -177,6 +193,7 @@ public class JTabbedFormDialog extends SwingXFormDialog {
         }
     }
 
+    @Override
     public int getValueIndex(String name) {
         for (SwingXFormImpl form : forms) {
             if (form.getComponent(name) != null) {
@@ -192,16 +209,19 @@ public class JTabbedFormDialog extends SwingXFormDialog {
         return -1;
     }
 
+    @Override
     public boolean show() {
         setReturnValue(XFormDialog.CANCEL_OPTION);
         show(new StringToStringMap());
         return getReturnValue() == XFormDialog.OK_OPTION;
     }
 
+    @Override
     public void setWidth(int i) {
         dialog.setPreferredSize(new Dimension(i, (int) dialog.getPreferredSize().getHeight()));
     }
 
+    @Override
     public void release() {
         dialog.dispose();
         tabs.removeAll();

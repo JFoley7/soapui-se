@@ -13,7 +13,6 @@
  * express or implied. See the Licence for the specific language governing permissions and limitations 
  * under the Licence. 
  */
-
 package com.eviware.x.form;
 
 import com.eviware.soapui.support.action.swing.ActionList;
@@ -23,7 +22,8 @@ import javax.swing.ImageIcon;
 import java.util.ArrayList;
 
 public abstract class XFormDialogBuilder {
-    private ArrayList<XForm> forms = new ArrayList<XForm>();
+
+    private ArrayList<XForm> forms = new ArrayList();
 
     public XFormDialogBuilder() {
     }
@@ -39,6 +39,8 @@ public abstract class XFormDialogBuilder {
     public abstract XForm createForm(String name);
 
     public abstract XFormDialog buildDialog(ActionList actions, String description, ImageIcon icon);
+    
+    public abstract XFormDialog buildDialog(ActionList actions, String description, ImageIcon icon, boolean modal);
 
     public abstract XFormDialog buildWizard(String description, ImageIcon icon, String helpURL);
 

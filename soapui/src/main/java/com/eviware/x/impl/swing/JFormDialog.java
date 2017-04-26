@@ -13,7 +13,6 @@
  * express or implied. See the Licence for the specific language governing permissions and limitations 
  * under the Licence. 
  */
-
 package com.eviware.x.impl.swing;
 
 import com.eviware.soapui.support.HelpActionMarker;
@@ -40,6 +39,7 @@ import java.awt.Dimension;
 import java.util.concurrent.CountDownLatch;
 
 public class JFormDialog extends SwingXFormDialog {
+
     private JDialog dialog;
     private SwingXFormImpl form;
     private JButtonBar buttons;
@@ -48,7 +48,11 @@ public class JFormDialog extends SwingXFormDialog {
     private JPanel panel;
 
     public JFormDialog(String name, SwingXFormImpl form, ActionList actions, String description, ImageIcon icon) {
-        dialog = new JDialog(UISupport.getMainFrame(), name, true);
+        this(name, form, actions, description, icon, true);
+    }
+    
+    public JFormDialog(String name, SwingXFormImpl form, ActionList actions, String description, ImageIcon icon, boolean modal) {
+        dialog = new JDialog(UISupport.getMainFrame(), name, modal);
         dialog.setName(name);
         this.actions = actions;
         buttons = UISupport.initDialogActions(actions, dialog);
@@ -74,6 +78,7 @@ public class JFormDialog extends SwingXFormDialog {
         this.panel = panel;
     }
 
+    @Override
     public void setValues(StringToStringMap values) {
         form.setValues(values);
     }
@@ -82,6 +87,7 @@ public class JFormDialog extends SwingXFormDialog {
         return dialog;
     }
 
+    @Override
     public void setSize(int i, int j) {
         dialog.setSize(i, j);
         resized = true;
@@ -92,10 +98,12 @@ public class JFormDialog extends SwingXFormDialog {
         return actions;
     }
 
+    @Override
     public XForm[] getForms() {
         return new XForm[]{form};
     }
 
+    @Override
     public StringToStringMap getValues() {
         StringToStringMap result = new StringToStringMap();
         result.putAll(form.getValues());
@@ -103,10 +111,12 @@ public class JFormDialog extends SwingXFormDialog {
         return result;
     }
 
+    @Override
     public void setOptions(String field, Object[] options) {
         form.setOptions(field, options);
     }
 
+    @Override
     public void setVisible(boolean visible) {
         if (!resized && visible) {
             dialog.pack();
@@ -129,16 +139,18 @@ public class JFormDialog extends SwingXFormDialog {
         }
     }
 
+    @Override
     public void addAction(Action action) {
         DefaultActionList actions = new DefaultActionList();
         actions.addAction(action);
         buttons.addActions(actions);
     }
 
+    @Override
     public boolean validate() {
         XFormField[] formFields = form.getFormFields();
-        for (int c = 0; c < formFields.length; c++) {
-            ValidationMessage[] messages = formFields[c].validate();
+        for (XFormField formField : formFields) {
+            ValidationMessage[] messages = formField.validate();
             if (messages != null && messages.length > 0) {
                 ((AbstractSwingXFormField<?>) messages[0].getFormField()).getComponent().requestFocus();
                 UISupport.showErrorMessage(messages[0].getMessage());
@@ -149,18 +161,22 @@ public class JFormDialog extends SwingXFormDialog {
         return true;
     }
 
+    @Override
     public void setFormFieldProperty(String name, Object value) {
         form.setFormFieldProperty(name, value);
     }
 
+    @Override
     public String getValue(String field) {
         return form.getComponentValue(field);
     }
 
+    @Override
     public void setValue(String field, String value) {
         form.setComponentValue(field, value);
     }
 
+    @Override
     public int getValueIndex(String name) {
         Object[] options = form.getOptions(name);
         if (options == null) {
@@ -172,6 +188,7 @@ public class JFormDialog extends SwingXFormDialog {
 
     private CountDownLatch startSignal;
 
+    @Override
     public boolean show() {
         setReturnValue(XFormDialog.CANCEL_OPTION);
         show(new StringToStringMap());
@@ -189,14 +206,17 @@ public class JFormDialog extends SwingXFormDialog {
         return getReturnValue() == XFormDialog.OK_OPTION;
     }
 
+    @Override
     public XFormField getFormField(String name) {
         return form.getFormField(name);
     }
 
+    @Override
     public void setWidth(int i) {
         dialog.setPreferredSize(new Dimension(i, (int) dialog.getPreferredSize().getHeight()));
     }
 
+    @Override
     public void release() {
         dialog.dispose();
     }

@@ -13,7 +13,6 @@
  * express or implied. See the Licence for the specific language governing permissions and limitations 
  * under the Licence. 
  */
-
 package com.eviware.soapui.security.ui;
 
 import com.eviware.soapui.impl.wsdl.support.HelpUrls;
@@ -75,7 +74,7 @@ public class SecurityCheckedParametersTablePanel extends JPanel implements ListS
     protected AbstractSecurityScanWithProperties securityScan;
 
     public SecurityCheckedParametersTablePanel(SecurityParametersTableModel model,
-                                               Map<String, TestProperty> properties, AbstractSecurityScanWithProperties securityCheck) {
+            Map<String, TestProperty> properties, AbstractSecurityScanWithProperties securityCheck) {
         this.securityScan = securityCheck;
         this.model = model;
         initRequestPartProperties(properties);
@@ -85,7 +84,7 @@ public class SecurityCheckedParametersTablePanel extends JPanel implements ListS
     }
 
     private void initRequestPartProperties(Map<String, TestProperty> properties) {
-        this.properties = new HashMap<String, TestProperty>();
+        this.properties = new HashMap();
         for (Map.Entry<String, TestProperty> entry : properties.entrySet()) {
             if (properties.get(entry.getKey()).isRequestPart()) {
                 this.properties.put(entry.getKey(), entry.getValue());
@@ -168,7 +167,7 @@ public class SecurityCheckedParametersTablePanel extends JPanel implements ListS
         Close closeAction = new Close();
         actionList.addAction(closeAction);
 
-        dialog = ADialogBuilder.buildDialog(AddParameterDialog.class, actionList, false);
+        dialog = ADialogBuilder.buildCustomDialog(AddParameterDialog.class, actionList);
 
         dialog.getFormField(AddParameterDialog.PATH).setProperty("component", buildPathSelector());
 
@@ -220,6 +219,7 @@ public class SecurityCheckedParametersTablePanel extends JPanel implements ListS
     }
 
     class AddNewParameterAction extends AbstractAction {
+
         public AddNewParameterAction() {
             putValue(Action.SMALL_ICON, UISupport.createImageIcon("/add.png"));
             putValue(Action.SHORT_DESCRIPTION, "Adds a parameter to security scan");
@@ -234,6 +234,7 @@ public class SecurityCheckedParametersTablePanel extends JPanel implements ListS
     }
 
     class RemoveParameterAction extends AbstractAction {
+
         public RemoveParameterAction() {
             putValue(Action.SMALL_ICON, UISupport.createImageIcon("/delete.png"));
             putValue(Action.SHORT_DESCRIPTION, "Removes parameter from security scan");
@@ -264,11 +265,9 @@ public class SecurityCheckedParametersTablePanel extends JPanel implements ListS
             if (dialog.getValue(AddParameterDialog.LABEL) == null
                     || dialog.getValue(AddParameterDialog.LABEL).trim().length() == 0) {
                 UISupport.showErrorMessage("Label is required!");
-            } else {
-                if (!model.addParameter(dialog.getValue(AddParameterDialog.LABEL),
-                        dialog.getValue(AddParameterDialog.NAME), pathPane.getText())) {
-                    UISupport.showErrorMessage("Label have to be unique!");
-                }
+            } else if (!model.addParameter(dialog.getValue(AddParameterDialog.LABEL),
+                    dialog.getValue(AddParameterDialog.NAME), pathPane.getText())) {
+                UISupport.showErrorMessage("Label have to be unique!");
             }
         }
 
@@ -352,16 +351,14 @@ public class SecurityCheckedParametersTablePanel extends JPanel implements ListS
             if (dialog.getValue(AddParameterDialog.LABEL) == null
                     || dialog.getValue(AddParameterDialog.LABEL).trim().length() == 0) {
                 UISupport.showErrorMessage("Label is required!");
+            } else if (model.addParameter(dialog.getValue(AddParameterDialog.LABEL),
+                    dialog.getValue(AddParameterDialog.NAME), pathPane.getText())) {
+                JComboBoxFormField nameField = (JComboBoxFormField) dialog.getFormField(AddParameterDialog.NAME);
+                nameField.setSelectedOptions(new Object[]{nameField.getOptions()[0]});
+                dialog.setValue(AddParameterDialog.LABEL, "");
+                pathPane.setText("");
             } else {
-                if (model.addParameter(dialog.getValue(AddParameterDialog.LABEL),
-                        dialog.getValue(AddParameterDialog.NAME), pathPane.getText())) {
-                    JComboBoxFormField nameField = (JComboBoxFormField) dialog.getFormField(AddParameterDialog.NAME);
-                    nameField.setSelectedOptions(new Object[]{nameField.getOptions()[0]});
-                    dialog.setValue(AddParameterDialog.LABEL, "");
-                    pathPane.setText("");
-                } else {
-                    UISupport.showErrorMessage("Label have to be unique!");
-                }
+                UISupport.showErrorMessage("Label have to be unique!");
             }
         }
 
@@ -373,6 +370,7 @@ public class SecurityCheckedParametersTablePanel extends JPanel implements ListS
 
     @AForm(description = "Add New Security Test Step Parameter", name = "Configure Security Test Step Parameters", helpUrl = HelpUrls.SECURITY_SCANS_OVERVIEW)
     interface AddParameterDialog {
+
         @AField(description = "Parameter Name", name = "Parameter Name", type = AFieldType.ENUMERATION)
         static String NAME = "Parameter Name";
 

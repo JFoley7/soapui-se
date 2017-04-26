@@ -13,7 +13,6 @@
  * express or implied. See the Licence for the specific language governing permissions and limitations 
  * under the Licence. 
  */
-
 package com.eviware.x.form.support;
 
 import com.eviware.soapui.SoapUI;
@@ -45,17 +44,29 @@ import java.lang.reflect.Field;
  *
  * @author ole.matzura
  */
-
 public class ADialogBuilder {
+
     public static XFormDialog buildDialog(Class<? extends Object> formClass) {
         return buildDialog(formClass, null, null);
+    }
+    
+    public static XFormDialog buildDialog(Class<? extends Object> formClass, boolean modal) {
+        return buildDialog(formClass, null, null, modal);
     }
 
     public static XFormDialog buildDialog(Class<? extends Object> formClass, ActionList actions) {
         return buildDialog(formClass, actions, null);
     }
-
+    
+    public static XFormDialog buildDialog(Class<? extends Object> formClass, ActionList actions, boolean modal) {
+        return buildDialog(formClass, actions, null, modal);
+    }
+    
     public static XFormDialog buildDialog(Class<? extends Object> formClass, ActionList actions, FormLayout layout) {
+        return buildDialog(formClass, actions, layout, true);
+    }
+
+    public static XFormDialog buildDialog(Class<? extends Object> formClass, ActionList actions, FormLayout layout, boolean modal) {
         AForm formAnnotation = formClass.getAnnotation(AForm.class);
         if (formAnnotation == null) {
             throw new RuntimeException("formClass is not annotated correctly..");
@@ -77,8 +88,9 @@ public class ADialogBuilder {
             }
         }
 
-        ActionList defaultActions = StringUtils.isBlank(formAnnotation.helpUrl()) ? builder.buildOkCancelActions() : builder
-                .buildOkCancelHelpActions(formAnnotation.helpUrl());
+        ActionList defaultActions = StringUtils.isBlank(formAnnotation.helpUrl()) 
+                ? builder.buildOkCancelActions() 
+                : builder.buildOkCancelHelpActions(formAnnotation.helpUrl());
 
         if (actions == null) {
             actions = defaultActions;
@@ -87,7 +99,7 @@ public class ADialogBuilder {
         }
 
         XFormDialog dialog = builder.buildDialog(actions, messages.get(formAnnotation.description()),
-                UISupport.createImageIcon(formAnnotation.icon()));
+                UISupport.createImageIcon(formAnnotation.icon()), modal);
 
         return dialog;
     }
@@ -107,15 +119,13 @@ public class ADialogBuilder {
      *
      * @param formClass
      * @param actions
-     * @param useDefaultOkCancel
      * @return
      */
-    public static XFormDialog buildDialog(Class<? extends Object> formClass, ActionList actions,
-                                          boolean useDefaultOkCancel) {
-
-        if (useDefaultOkCancel) {
-            return buildDialog(formClass, actions);
-        }
+    public static XFormDialog buildCustomDialog(Class<? extends Object> formClass, ActionList actions) {
+        return buildCustomDialog(formClass, actions, true);
+    }
+    
+    public static XFormDialog buildCustomDialog(Class<? extends Object> formClass, ActionList actions, boolean modal) {
         AForm formAnnotation = formClass.getAnnotation(AForm.class);
         if (formAnnotation == null) {
             throw new RuntimeException("formClass is not annotated correctly..");
@@ -137,8 +147,8 @@ public class ADialogBuilder {
             }
         }
 
-        ActionList defaultActions = StringUtils.isBlank(formAnnotation.helpUrl()) ? null : builder.buildHelpActions(formAnnotation
-                .helpUrl());
+        ActionList defaultActions = StringUtils.isBlank(formAnnotation.helpUrl()) 
+                ? null : builder.buildHelpActions(formAnnotation.helpUrl());
 
         if (actions == null) {
             actions = defaultActions;
@@ -147,7 +157,7 @@ public class ADialogBuilder {
             actions.insertAction(defaultActions.getActionAt(0), 0);
         }
         XFormDialog dialog = builder.buildDialog(actions, messages.get(formAnnotation.description()),
-                UISupport.createImageIcon(formAnnotation.icon()));
+                UISupport.createImageIcon(formAnnotation.icon()), modal);
 
         return dialog;
     }
@@ -178,8 +188,9 @@ public class ADialogBuilder {
             }
         }
 
-        ActionList defaultActions = StringUtils.isBlank(formAnnotation.helpUrl()) ? builder.buildOkCancelActions() : builder
-                .buildOkCancelHelpActions(formAnnotation.helpUrl());
+        ActionList defaultActions = StringUtils.isBlank(formAnnotation.helpUrl()) 
+                ? builder.buildOkCancelActions() 
+                : builder.buildOkCancelHelpActions(formAnnotation.helpUrl());
 
         if (actions == null) {
             actions = defaultActions;
@@ -194,7 +205,7 @@ public class ADialogBuilder {
     }
 
     public static XFormDialog buildTabbedDialogWithCustomActions(Class<? extends Object> tabbedFormClass,
-                                                                 ActionList actions) {
+            ActionList actions) {
         AForm formAnnotation = tabbedFormClass.getAnnotation(AForm.class);
         if (formAnnotation == null) {
             throw new RuntimeException("formClass is not annotated correctly..");
@@ -220,8 +231,8 @@ public class ADialogBuilder {
             }
         }
 
-        ActionList defaultActions = StringUtils.isBlank(formAnnotation.helpUrl()) ? null : builder
-                .buildHelpActions(formAnnotation.helpUrl());
+        ActionList defaultActions = StringUtils.isBlank(formAnnotation.helpUrl()) 
+                ? null : builder.buildHelpActions(formAnnotation.helpUrl());
 
         if (actions == null) {
             actions = defaultActions;

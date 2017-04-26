@@ -13,7 +13,6 @@
  * express or implied. See the Licence for the specific language governing permissions and limitations 
  * under the Licence. 
  */
-
 package com.eviware.soapui.security.actions;
 
 import com.eviware.soapui.impl.wsdl.support.HelpUrls;
@@ -230,7 +229,7 @@ public class CloneParametersAction extends AbstractAction {
         ApplyAction applyAction = new ApplyAction();
         actionList.addAction(applyAction);
 
-        dialog = ADialogBuilder.buildDialog(CloneParameterDialog.class, actionList, false);
+        dialog = ADialogBuilder.buildCustomDialog(CloneParameterDialog.class, actionList);
 
         okAction.setDialog(dialog);
         cancelAction.setDialog(dialog);
@@ -382,6 +381,7 @@ public class CloneParametersAction extends AbstractAction {
 
     @AForm(description = "Specify target TestSuite/TestCase/Security Test(s)/Security Scan(s) and select Parameters to clone", name = "Clone Parameters", icon = UISupport.TOOL_ICON_PATH, helpUrl = HelpUrls.SECURITY_SCANS_OVERVIEW)
     private interface CloneParameterDialog {
+
         @AField(name = "Parameters", description = "The Parameters to clone", type = AFieldType.MULTILIST)
         public final static String PARAMETERS = "Parameters";
 
