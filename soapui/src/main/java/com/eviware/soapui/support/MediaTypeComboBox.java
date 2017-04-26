@@ -13,7 +13,6 @@
  * express or implied. See the Licence for the specific language governing permissions and limitations 
  * under the Licence. 
  */
-
 package com.eviware.soapui.support;
 
 import com.eviware.soapui.impl.support.http.MediaType;
@@ -23,6 +22,7 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 
 public class MediaTypeComboBox extends JComboBox {
+
     public MediaTypeComboBox(final MediaType model) {
         super(getMediaTypes());
 
@@ -32,6 +32,7 @@ public class MediaTypeComboBox extends JComboBox {
         }
 
         addItemListener(new ItemListener() {
+            @Override
             public void itemStateChanged(ItemEvent e) {
                 model.setMediaType(String.valueOf(getSelectedItem()));
             }
@@ -40,7 +41,7 @@ public class MediaTypeComboBox extends JComboBox {
     }
 
     public static Object[] getMediaTypes() {
-        return new String[]{"application/json", "application/xml", "text/xml", "multipart/form-data", "multipart/mixed"};
+        return new String[]{"application/json", "application/xml", "text/xml", "multipart/form-data", "multipart/mixed", "text/groovy"};
     }
 
 }
