@@ -13,7 +13,6 @@
  * express or implied. See the Licence for the specific language governing permissions and limitations 
  * under the Licence. 
  */
-
 package com.eviware.soapui.support;
 
 import com.eviware.soapui.SoapUI;
@@ -24,21 +23,20 @@ import java.lang.reflect.Method;
 import java.net.URL;
 
 public class ClasspathHacker {
-    private static void addFile(String s) throws IOException {
+
+    public static void addFile(String s) throws IOException {
         File f = new File(s);
         addFile(f);
-    }// end method
+    }
 
-    private static void addFile(File f) throws IOException {
+    public static void addFile(File f) throws IOException {
         addURL(f.toURI().toURL());
-    }// end method
+    }
 
-    private static void addURL(URL u) throws IOException {
+    public static void addURL(URL u) throws IOException {
         ClassLoader classLoader = SoapUI.class.getClassLoader();
-
         addUrlToClassLoader(u, classLoader);
-
-    }// end method
+    }
 
     private static void addUrlToClassLoader(URL u, ClassLoader classLoader) throws IOException {
         try {
@@ -76,15 +74,15 @@ public class ClasspathHacker {
                         SoapUI.logError(t);
                         throw e3;
                     }
-                }// end try catch
+                }
             } catch (Throwable t) {
                 SoapUI.logError(t);
                 throw new IOException("Error, could not add URL to system classloader " + classLoader.getClass().getName());
-            }// end try catch
+            }
         } catch (Throwable t) {
             SoapUI.logError(t);
             throw new IOException("Error, could not add URL to system classloader " + classLoader.getClass().getName());
-        }// end try catch
+        }
     }
 
-}// end class
+}
