@@ -93,7 +93,6 @@ table.contractCoverage {
 td {
     font-weight: bold;
     text-align: left;
-    -moz-border-radius:;
     background: #ffffff;
 }
 
@@ -108,8 +107,7 @@ td.header {
     text-align: left;
     padding: 5px;
     background: #00cc33;
-    -moz-border-radius:;
-    width = 150px;
+    width: 150px;
 }
 
 td.count, td.percent {
@@ -119,7 +117,6 @@ td.count, td.percent {
     text-align: right;
     background: #eeeeee;
     padding: 3px 5px 3px 3px;
-    -moz-border-radius:;
 }
 
 td.percent {
